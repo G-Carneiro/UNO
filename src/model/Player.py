@@ -8,6 +8,12 @@ class Player:
         self._name: str = name
         self._cards: List[Card] = []
 
+    def get_name(self) -> str:
+        return self._name
+
+    def get_cards(self) -> List[Card]:
+        return self._cards
+
     def put_card(self, card: Card) -> None:
         self._cards.remove(card)
         return None
