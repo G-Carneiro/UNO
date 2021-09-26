@@ -30,6 +30,8 @@ class Card:
             return CardType.REVERSE
         elif self._is_block:
             return CardType.BLOCK
+        elif self.is_buy_card():
+            return CardType.BUY
         elif self._is_change_color:
             return CardType.CHANGE_COLOR
         else:
@@ -37,6 +39,15 @@ class Card:
 
     def is_buy_card(self) -> bool:
         return self._is_buy_card
+
+    def is_reverse(self) -> bool:
+        return self._is_reverse
+
+    def is_block(self) -> bool:
+        return self._is_block
+
+    def is_change_color(self) -> bool:
+        return self._is_change_color
 
     def is_special(self) -> bool:
         return (self._is_buy_card or self._is_reverse or self._is_block or self._is_change_color)

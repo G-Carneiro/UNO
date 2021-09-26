@@ -33,18 +33,18 @@ class Table:
         self._num_players = len(self._players)
         shuffle(self._players)
         for player in self._players:
-            for _ in range(initial_cards_number + 1):
-                self._give_card_to_player(player)
+            self._give_cards_to_player(player, num_cards=initial_cards_number)
         self._set_initial_top_card()
-        # self._run()
+        self._run()
 
         return None
 
     def _run(self) -> None:
         actual_player: Player = self._players[-1]
+        next_player: Player = self._players[0]
 
         while not actual_player.winner():
-            actual_player = self._next_player(actual_player)
+            actual_player = next_player
             if not actual_player.have_allowed_card(self.allowed_cards()):
                 card: Card = self.get_random_card()
                 actual_player.buy_card(card)
@@ -52,8 +52,29 @@ class Table:
                     card: Card = self.get_random_card()
                     actual_player.buy_card(card)
 
-    def _give_card_to_player(self, player: Player) -> None:
-        player.buy_card(self.get_random_card())
+            # FIXME: remove
+            new_top: Card = actual_player.put_allowed_card(self.allowed_cards())
+            block: bool = False
+            if new_top.is_reverse():
+                self._reverse = not self._reverse
+            elif new_top.is_block():
+                if self._value_to_buy:
+                    self._value_to_buy = 0
+                else:
+                    block = True
+            elif new_top.is_change_color():
+                self._set_color(actual_player)
+
+            next_player: Player = self._next_player(actual_player, block=block)
+            self._top_card = new_top
+
+        print(actual_player)
+
+        return None
+
+    def _give_cards_to_player(self, player: Player, num_cards: int = 1) -> None:
+        for _ in range(num_cards):
+            player.buy_card(self.get_random_card())
         return None
 
     def _set_deck(self) -> None:
@@ -112,6 +133,7 @@ class Table:
             card = self.get_random_card()
 
         self._top_card: Card = card
+        self._color: Color = card.get_color()
 
         return None
 
@@ -120,22 +142,31 @@ class Table:
         operand: int = 1 + block
         if self._reverse:
             return self._players[index - operand]
-        elif index == self._num_players - operand:
+        elif index + operand >= self._num_players:
             return self._players[0]
 
-        return self._players[index + 1]
+        return self._players[index + operand]
 
     def allowed_cards(self) -> Set[Card]:
         allowed_cards: Set[Card] = set()
         if self._value_to_buy:
-            allowed_cards |= self._deck_by_key[CardType.BUY]
-            allowed_cards |= self._deck_by_key[CardType.REVERSE]
+            allowed_cards |= set(self._deck_by_key[CardType.BUY])
+            allowed_cards |= set(self._deck_by_key[CardType.REVERSE])
             if self._value_to_buy <= 10:
-                allowed_cards |= self._deck_by_key[CardType.BLOCK]
+                allowed_cards |= set(self._deck_by_key[CardType.BLOCK])
         else:
-            allowed_cards |= self._deck_by_key[self._top_card.get_type()]
-            allowed_cards |= self._deck_by_key[self._top_card.get_color()]
-            allowed_cards |= self._deck_by_key[Color.BLACK]
+            allowed_cards |= set(self._deck_by_key[self._top_card.get_type()])
+            allowed_cards |= set(self._deck_by_key[self._top_card.get_color()])
+            if self._top_card.is_change_color():
+                allowed_cards |= set(self._deck_by_key[self._color])
+            allowed_cards |= set(self._deck_by_key[Color.BLACK])
 
         return allowed_cards
+
+    def _set_color(self, player: Player) -> None:
+        for card in player.get_cards():
+            if card.get_color() != Color.BLACK:
+                self._color = card.get_color()
+
+        return None
 

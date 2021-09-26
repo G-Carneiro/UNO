@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Optional
 
 from .Card import Card
 
@@ -31,6 +31,14 @@ class Player:
                 return True
 
         return False
+
+    def put_allowed_card(self, allowed_cards: Set[Card]) -> Optional[Card]:
+        for card in self._cards:
+            if card in allowed_cards:
+                self.put_card(card)
+                return card
+
+        return None
 
     def __repr__(self) -> str:
         return self._name
