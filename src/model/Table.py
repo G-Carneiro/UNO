@@ -1,4 +1,5 @@
 from typing import List, Dict, Set, Union
+from random import choice
 
 from .Card import Card
 from .Color import Color
@@ -10,11 +11,11 @@ class Table:
     def __init__(self) -> None:
         self._players: List[Player] = []
         self._value_to_buy: int = 0
-        self._allowed_cards: Set[Card] = set()
-        self._set_deck()
-        self._top_card: Card = None         # FIXME: type
         self._reverse: bool = False
         self._num_players: int = len(self._players)
+        self._allowed_cards: Set[Card] = set()
+        self._set_deck()
+        self._set_initial_top_card()
 
     def get_players(self) -> List[Player]:
         return self._players
@@ -70,6 +71,19 @@ class Table:
         self._deck_by_key[black] += [plus_four, change_color]
         self._deck_by_key[CardType.CHANGE_COLOR] += [plus_four, change_color]
         self._deck += [plus_four, plus_four, change_color, change_color]
+
+        return None
+
+    def get_random_card(self) -> Card:
+        return choice(self._deck)
+
+    def _set_initial_top_card(self) -> None:
+        card: Card = self.get_random_card()
+
+        while card.is_special():
+            card = self.get_random_card()
+
+        self._top_card: Card = card
 
         return None
 

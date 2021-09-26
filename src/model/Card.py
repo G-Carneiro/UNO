@@ -23,3 +23,6 @@ class Card:
 
     def get_value(self) -> Optional[int]:
         return self._value
+
+    def is_special(self) -> bool:
+        return (self._is_buy_card or self._is_reverse or self._is_block or self._is_change_color)
