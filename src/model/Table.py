@@ -46,6 +46,9 @@ class Table:
         while not actual_player.winner():
             actual_player = next_player
             if not actual_player.have_allowed_card(self.allowed_cards()):
+                if self._value_to_buy:
+                    self._give_cards_to_player(actual_player, self._value_to_buy)
+                    next_player: Player = self._next_player(actual_player)
                 card: Card = self.get_random_card()
                 actual_player.buy_card(card)
                 while card not in self.allowed_cards():
@@ -53,22 +56,21 @@ class Table:
                     actual_player.buy_card(card)
 
             # FIXME: remove
-            new_top: Card = actual_player.put_allowed_card(self.allowed_cards())
-            block: bool = False
-            if new_top.is_reverse():
-                self._reverse = not self._reverse
-            elif new_top.is_block():
-                if self._value_to_buy:
-                    self._value_to_buy = 0
-                else:
-                    block = True
-            elif new_top.is_change_color():
-                self._set_color(actual_player)
+            if actual_player == next_player:
+                new_top: Card = actual_player.put_allowed_card(self.allowed_cards())
+                block: bool = False
+                if new_top.is_reverse():
+                    self._reverse = not self._reverse
+                elif new_top.is_block():
+                    if self._value_to_buy:
+                        self._value_to_buy = 0
+                    else:
+                        block = True
+                elif new_top.is_change_color():
+                    self._set_color(actual_player)
 
-            next_player: Player = self._next_player(actual_player, block=block)
-            self._top_card = new_top
-
-        print(actual_player)
+                next_player: Player = self._next_player(actual_player, block=block)
+                self._top_card = new_top
 
         return None
 

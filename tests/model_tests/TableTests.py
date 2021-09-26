@@ -59,4 +59,5 @@ class TableTests(TestCase):
         erick: Player = Player(name="erick")
         self._table._players = [eu, hari, rosa, john, erick]
 
-        self._table.start_game()
+        while True:
+            self._table.start_game()
