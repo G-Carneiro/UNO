@@ -13,7 +13,6 @@ class Table:
         self._value_to_buy: int = 0
         self._reverse: bool = False
         self._num_players: int = len(self._players)
-        self._allowed_cards: Set[Card] = set()
         self._set_deck()
         self._set_initial_top_card()
 
@@ -96,6 +95,17 @@ class Table:
 
         return self._players[index + 1]
 
-    def allowed_cards(self, card: Card) -> bool:
+    def allowed_cards(self) -> Set[Card]:
+        allowed_cards: Set[Card] = set()
         if self._value_to_buy:
-            return True
+            allowed_cards |= self._deck_by_key[CardType.BUY]
+            allowed_cards |= self._deck_by_key[CardType.REVERSE]
+            if self._value_to_buy <= 10:
+                allowed_cards |= self._deck_by_key[CardType.BLOCK]
+        else:
+            allowed_cards |= self._deck_by_key[self._top_card.get_type()]
+            allowed_cards |= self._deck_by_key[self._top_card.get_color()]
+            allowed_cards |= self._deck_by_key[Color.BLACK]
+
+        return allowed_cards
+

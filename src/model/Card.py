@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import Optional, Union
 
 from .Color import Color
+from .CardType import CardType
 
 
 class Card:
@@ -23,6 +24,19 @@ class Card:
 
     def get_value(self) -> Optional[int]:
         return self._value
+
+    def get_type(self) -> Union[CardType, int]:
+        if self._is_reverse:
+            return CardType.REVERSE
+        elif self._is_block:
+            return CardType.BLOCK
+        elif self._is_change_color:
+            return CardType.CHANGE_COLOR
+        else:
+            return self._value
+
+    def is_buy_card(self) -> bool:
+        return self._is_buy_card
 
     def is_special(self) -> bool:
         return (self._is_buy_card or self._is_reverse or self._is_block or self._is_change_color)
