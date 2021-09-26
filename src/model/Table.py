@@ -1,15 +1,18 @@
-from typing import List, Dict
+from typing import List, Dict, Set, Union
 
 from .Card import Card
 from .Color import Color
 from .Player import Player
+from .CardType import CardType
 
 
 class Table:
     def __init__(self) -> None:
         self._players: List[Player] = []
         self._value_to_buy: int = 0
-        self._deck: Dict[List[Card]] = {}   # FIXME: keys
+        self._deck: List[Card] = []
+        self._deck_by_key: Dict[Union[Color, CardType, int], List[Card]] = {}
+        self._allowed_cards: Set[Card] = set()
         self._top_card: Card = None         # FIXME: type
         self._reverse: bool = False
         self._num_players: int = len(self._players)
@@ -26,14 +29,35 @@ class Table:
         return None
 
     def _set_deck(self) -> None:
-        for color in Color:
+        black: Color = Color.BLACK
+        usual_colors: List[Color] = [color for color in Color if color != black]
+
+        for color in usual_colors:
             for value in range(10):
                 card = Card(value=value, color=color)
-                self._deck["NORMAL"].append(card)
+                self._deck_by_key[color].append(card)
+                self._deck_by_key[value].append(card)
+                self._deck.append(card)
 
-            plus_two: Card = Card(value=2, color=color)
-            reverse: Card = Card(color=color, is_reverse=True)
+            plus_two: Card = Card(value=2, color=color, is_buy_card=True)
+            self._deck_by_key[CardType.BUY].append(plus_two)
+
             block: Card = Card(color=color, is_block=True)
+            self._deck_by_key[CardType.BLOCK].append(block)
+
+            reverse: Card = Card(color=color, is_reverse=True)
+            self._deck_by_key[CardType.REVERSE].append(reverse)
+
+            self._deck_by_key[color] += [plus_two, block, reverse]
+
+        plus_four: Card = Card(value=4, color=black, is_buy_card=True, is_change_color=True)
+        self._deck_by_key[CardType.BUY].append(plus_four)
+
+        change_color: Card = Card(color=black, is_change_color=True)
+
+        self._deck_by_key[black] += [plus_four, change_color]
+        self._deck_by_key[CardType.CHANGE_COLOR] += [plus_four, change_color]
+        self._deck += [plus_four, plus_four, change_color, change_color]
 
         return None
 
