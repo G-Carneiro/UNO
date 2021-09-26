@@ -10,9 +10,8 @@ class Table:
     def __init__(self) -> None:
         self._players: List[Player] = []
         self._value_to_buy: int = 0
-        self._deck: List[Card] = []
-        self._deck_by_key: Dict[Union[Color, CardType, int], List[Card]] = {}
         self._allowed_cards: Set[Card] = set()
+        self._set_deck()
         self._top_card: Card = None         # FIXME: type
         self._reverse: bool = False
         self._num_players: int = len(self._players)
@@ -29,6 +28,18 @@ class Table:
         return None
 
     def _set_deck(self) -> None:
+        self._deck: List[Card] = []
+        self._deck_by_key: Dict[Union[Color, CardType, int], List[Card]] = {}
+
+        for value in range(10):
+            self._deck_by_key[value] = []
+
+        for color in Color:
+            self._deck_by_key[color] = []
+
+        for card_type in CardType:
+            self._deck_by_key[card_type] = []
+
         black: Color = Color.BLACK
         usual_colors: List[Color] = [color for color in Color if color != black]
 
@@ -49,6 +60,7 @@ class Table:
             self._deck_by_key[CardType.REVERSE].append(reverse)
 
             self._deck_by_key[color] += [plus_two, block, reverse]
+            self._deck += [plus_two, block, reverse]
 
         plus_four: Card = Card(value=4, color=black, is_buy_card=True, is_change_color=True)
         self._deck_by_key[CardType.BUY].append(plus_four)
