@@ -1,5 +1,5 @@
 from typing import List, Dict, Set, Union
-from random import choice
+from random import choice, shuffle
 
 from .Card import Card
 from .Color import Color
@@ -7,14 +7,16 @@ from .Player import Player
 from .CardType import CardType
 
 
+initial_cards_number: int = 7
+
+
 class Table:
     def __init__(self) -> None:
         self._players: List[Player] = []
         self._value_to_buy: int = 0
         self._reverse: bool = False
-        self._num_players: int = len(self._players)
+        self._num_players: int = 0
         self._set_deck()
-        self._set_initial_top_card()
 
     def get_players(self) -> List[Player]:
         return self._players
@@ -25,6 +27,35 @@ class Table:
 
     def remove_player(self, player: Player) -> None:
         self._players.remove(player)
+        return None
+
+    def start_game(self) -> None:
+        self._num_players = len(self._players)
+        shuffle(self._players)
+        for player in self._players:
+            for _ in range(initial_cards_number + 1):
+                self._give_card_to_player(player)
+        self._set_initial_top_card()
+        # self._run()
+
+        return None
+
+    def _run(self) -> None:
+        actual_player: Player = self._players[-1]
+
+        while not actual_player.winner():
+            actual_player = self._next_player(actual_player)
+            if actual_player.have_allowed_card(self.allowed_cards()):
+                pass
+            else:
+                card: Card = self.get_random_card()
+                actual_player.buy_card(card)
+                while card not in self.allowed_cards():
+                    card: Card = self.get_random_card()
+                    actual_player.buy_card(card)
+
+    def _give_card_to_player(self, player: Player) -> None:
+        player.buy_card(self.get_random_card())
         return None
 
     def _set_deck(self) -> None:
@@ -86,11 +117,12 @@ class Table:
 
         return None
 
-    def _next_player(self, actual_player: Player) -> Player:
+    def _next_player(self, actual_player: Player, block: bool = False) -> Player:
         index: int = self._players.index(actual_player)
+        operand: int = 1 + block
         if self._reverse:
-            return self._players[index - 1]
-        elif index == self._num_players - 1:
+            return self._players[index - operand]
+        elif index == self._num_players - operand:
             return self._players[0]
 
         return self._players[index + 1]

@@ -4,6 +4,7 @@ from typing import List, Set, Dict
 from src.model.Card import Card
 from src.model.Table import Table
 from src.model.Color import Color
+from src.model.Player import Player
 from src.model.CardType import CardType
 
 
@@ -49,3 +50,13 @@ class TableTests(TestCase):
         self.assertEqual(54, len(cards))
 
         return None
+
+    def test_start_game(self) -> None:
+        eu: Player = Player(name="eu")
+        hari: Player = Player(name="hari")
+        rosa: Player = Player(name="rosa")
+        john: Player = Player(name="john")
+        erick: Player = Player(name="erick")
+        self._table._players = [eu, hari, rosa, john, erick]
+
+        self._table.start_game()

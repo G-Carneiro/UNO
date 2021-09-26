@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set
 
 from .Card import Card
 
@@ -21,3 +21,13 @@ class Player:
     def buy_card(self, card: Card) -> None:
         self._cards.append(card)
         return None
+
+    def winner(self) -> bool:
+        return (not len(self._cards))
+
+    def have_allowed_card(self, allowed_cards: Set[Card]) -> bool:
+        for card in self._cards:
+            if card in allowed_cards:
+                return True
+
+        return False
