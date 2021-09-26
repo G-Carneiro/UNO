@@ -45,9 +45,7 @@ class Table:
 
         while not actual_player.winner():
             actual_player = self._next_player(actual_player)
-            if actual_player.have_allowed_card(self.allowed_cards()):
-                pass
-            else:
+            if not actual_player.have_allowed_card(self.allowed_cards()):
                 card: Card = self.get_random_card()
                 actual_player.buy_card(card)
                 while card not in self.allowed_cards():
