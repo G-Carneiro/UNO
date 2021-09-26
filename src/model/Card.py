@@ -40,3 +40,17 @@ class Card:
 
     def is_special(self) -> bool:
         return (self._is_buy_card or self._is_reverse or self._is_block or self._is_change_color)
+
+    def __repr__(self) -> str:
+        out: str = ""
+        if self._is_buy_card:
+            out += "+"
+
+        if isinstance(self._value, int):
+            out += str(self._value)
+        else:
+            out += str(self.get_type().name)
+
+        out += str(self._color.name)
+
+        return out

@@ -31,3 +31,6 @@ class Player:
                 return True
 
         return False
+
+    def __repr__(self) -> str:
+        return self._name
