@@ -1,0 +1,16 @@
+.cabecalho {
+    background-color: #090D11;
+    color: #FFFFFF;
+	padding: 20px 0;  
+}
+
+.cabecalho__titulo {
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+}
+
+.cabecalho__titulo a {
+    color: inherit;
+    text-decoration: none;
+}

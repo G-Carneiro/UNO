@@ -1,0 +1,17 @@
+.jogadores {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-around;
+}
+
+.jogadores__indicador__lista {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+}
+
+.mesa__indicador__lista {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-around;
+}
