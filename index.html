@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+    <head>
+
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Projeto Jogo de Cartas</title>
+
+        <link rel="stylesheet" href="css/reset.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/flexbox.css">
+        <link rel="stylesheet" href="css/cabecalho.css">
+        <link rel="stylesheet" href="css/conteudo.css">
+        <link rel="stylesheet" href="css/rodape.css">
+
+    </head>
+
+    <body>
+
+        <header class="cabecalho">
+            <div class="container">
+                <h1 class="cabecalho__titulo">
+                    <a href="#">Projeto Jogo de Cartas</a>
+                </h1>
+            </div>
+        </header>
+
+        <main class="conteudo">
+            <section class="jogadores">
+                <div class="jogadores__titulo">
+                    <h2 class="jogadores__titulo__texto">Jogadores</h2>
+                    <div class="jogadores__indicador">
+                        <ul class="jogadores__indicador__lista">
+                            <li class="jogadores__indicador__item">
+                                <img src="IMG/usericon.png" class="user_icon" alt="ícone de perfil do jogador">
+                                <h3 class="jogadores__indicador__nome">
+                                    Player 1
+                                </h3>
+                                <p class="jogadores__indicador__cartas">
+                                    Total de cartas: x
+                                </p>
+                            </li>
+                            <li class="jogadores__indicador__item">
+                                <img src="IMG/usericon.png" class="user_icon" alt="ícone de perfil do jogador">
+                                <h3 class="jogadores__indicador__nome">
+                                    Player 2
+                                </h3>
+                                <p class="jogadores__indicador__cartas">
+                                    Total de cartas: x
+                                </p>
+                            </li>
+                            <li class="jogadores__indicador__item">
+                                <img src="IMG/usericon.png" class="user_icon" alt="ícone de perfil do jogador">
+                                <h3 class="jogadores__indicador__nome">
+                                    Player 3
+                                </h3>
+                                <p class="jogadores__indicador__cartas">
+                                    Total de cartas: x
+                                </p>
+                            </li>
+                            <li class="jogadores__indicador__item">
+                                <img src="IMG/usericon.png" class="user_icon" alt="ícone de perfil do jogador">
+                                <h3 class="jogadores__indicador__nome">
+                                    Player 4
+                                </h3>
+                                <p class="jogadores__indicador__cartas">
+                                    Total de cartas: x 
+                                </p>
+                            </li>
+                            <li class="jogadores__indicador__item">
+                                <img src="IMG/usericon.png" class="user_icon" alt="ícone de perfil do jogador">
+                                <h3 class="jogadores__indicador__nome">
+                                    Player 5
+                                </h3>
+                                <p class="jogadores__indicador__cartas">
+                                    Total de cartas: x
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="info">
+                    <ul class="info__lista">
+                        <li class="info__item">
+                            <p class="info__item_jogador">Próximo Jogador:</p>
+                        </li>
+                        <li class="info__item">
+                            <p class="info__item_jogador">Jogador com mais cartas:</p>
+                        </li>
+                        <li class="info__item">
+                            <p class="info__item_jogador">Jogador com menos cartas:</p>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+            <section class="mesa">
+                <div class="mesa__indicador">
+                    <ul class="mesa__indicador__lista">
+                        <li class="mesa__item">
+                            <div class="mesa__item__card">
+                                <h3 class="mesa__item__titulo">Cartas para comprar</h3>
+                            </div>
+                            <button class="btn_comprar">Comprar Cartas</button>
+                        </li>
+                        <li class="mesa__item">
+                            <div class="mesa__item__card">
+                                <h3 class="mesa__item__titulo">Cartas Jogadas</h3>
+                            </div>
+                            <button class="btn_visualizar">Visualizar Cartas</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="mao__indicador">
+                    <ul class="mao__indicador__lista">
+                        <li class="mao__item">
+                            <div class="mao__item__card">
+                                <h3 class="mao__item__titulo">Cartas</h3>
+                            </div>
+                        </li>
+                        <li class="mao__item">
+                            <div class="mao__item__card">
+                                <h3 class="mao__item__titulo">Cartas</h3>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <button class="btn_jogar">Jogar Carta</button>
+            </section>
+
+        </main>
+
+    </body>
+
+</html>
