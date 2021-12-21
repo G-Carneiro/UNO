@@ -13,6 +13,9 @@ class Node:
     def data(self) -> T:
         return self._data
 
+    def __repr__(self) -> str:
+        return str(self._data)
+
 
 class LinkedListNode(Node):
     def __init__(self, data: T) -> None:

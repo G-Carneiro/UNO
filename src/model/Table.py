@@ -61,19 +61,22 @@ class Table:
 
         while (not actual_player.winner()):
             actual_player = next_player
-            if not actual_player.have_allowed_card(self.allowed_cards()):
+            allowed_cards: Set[Card] = self.allowed_cards()
+            if (not actual_player.have_allowed_card(allowed_cards)):
                 if (self._value_to_buy):
                     self._give_cards_to_player(actual_player, self._value_to_buy)
                     next_player: Player = self._next_player()
-                card: Card = self.get_random_card()
-                actual_player.buy_card(card)
-                while card not in self.allowed_cards():
+                    self._value_to_buy = 0
+                else:
                     card: Card = self.get_random_card()
                     actual_player.buy_card(card)
+                    while card not in allowed_cards:
+                        card: Card = self.get_random_card()
+                        actual_player.buy_card(card)
 
             # FIXME: remove
             if actual_player == next_player:
-                new_top: Card = actual_player.put_allowed_card(self.allowed_cards())
+                new_top: Card = actual_player.put_allowed_card(allowed_cards)
                 block: bool = False
                 if new_top.is_reverse():
                     self._reverse = not self._reverse
@@ -191,3 +194,5 @@ class Table:
 
         return None
 
+    def __repr__(self) -> str:
+        return str(self._players_list)

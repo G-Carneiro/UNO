@@ -203,3 +203,6 @@ class DoublyCircularList:
         nodes[-1].set_next(self._head)
 
         return None
+
+    def __repr__(self) -> str:
+        return (f"{self._head}, {self._size}")
