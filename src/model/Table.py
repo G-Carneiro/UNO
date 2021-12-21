@@ -17,27 +17,27 @@ play_before_buy: bool = False
 
 class Table:
     def __init__(self) -> None:
-        self._players: List[Player] = []
+        self._players_list: List[Player] = []
         self._value_to_buy: int = 0
         self._reverse: bool = False
         self._num_players: int = 0
         self._set_deck()
 
     def get_players(self) -> List[Player]:
-        return self._players
+        return self._players_list
 
     def add_player(self, player: Player) -> None:
-        self._players.append(player)
+        self._players_list.append(player)
         return None
 
     def remove_player(self, player: Player) -> None:
-        self._players.remove(player)
+        self._players_list.remove(player)
         return None
 
     def start_game(self) -> None:
-        self._num_players = len(self._players)
-        shuffle(self._players)
-        for player in self._players:
+        self._num_players = len(self._players_list)
+        shuffle(self._players_list)
+        for player in self._players_list:
             self._give_cards_to_player(player, num_cards=initial_cards_number)
         self._set_initial_top_card()
         self._run()
@@ -45,8 +45,8 @@ class Table:
         return None
 
     def _run(self) -> None:
-        actual_player: Player = self._players[-1]
-        next_player: Player = self._players[0]
+        actual_player: Player = self._players_list[-1]
+        next_player: Player = self._players_list[0]
 
         while not actual_player.winner():
             actual_player = next_player
@@ -145,14 +145,14 @@ class Table:
         return None
 
     def _next_player(self, actual_player: Player, block: bool = False) -> Player:
-        index: int = self._players.index(actual_player)
+        index: int = self._players_list.index(actual_player)
         operand: int = 1 + block
         if self._reverse:
-            return self._players[index - operand]
+            return self._players_list[index - operand]
         elif index + operand >= self._num_players:
-            return self._players[(index + operand) % self._num_players]
+            return self._players_list[(index + operand) % self._num_players]
 
-        return self._players[index + operand]
+        return self._players_list[index + operand]
 
     def allowed_cards(self) -> Set[Card]:
         allowed_cards: Set[Card] = set()
