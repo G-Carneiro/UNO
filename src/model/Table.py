@@ -5,6 +5,7 @@ from .Card import Card
 from .Color import Color
 from .Player import Player
 from .CardType import CardType
+from .DoublyCircularList import DoublyCircularList
 
 
 initial_cards_number: int = 7
@@ -18,6 +19,7 @@ play_before_buy: bool = False
 class Table:
     def __init__(self) -> None:
         self._players_list: List[Player] = []
+        self._players: DoublyCircularList = DoublyCircularList()
         self._value_to_buy: int = 0
         self._reverse: bool = False
         self._num_players: int = 0
@@ -37,18 +39,24 @@ class Table:
     def start_game(self) -> None:
         self._num_players = len(self._players_list)
         shuffle(self._players_list)
+
+        if (not self._players.empty()):
+            self._players.clear()
+
         for player in self._players_list:
             self._give_cards_to_player(player, num_cards=initial_cards_number)
+
+        self._players.insert_values(self._players_list)
         self._set_initial_top_card()
         self._run()
 
         return None
 
     def _run(self) -> None:
-        actual_player: Player = self._players_list[-1]
-        next_player: Player = self._players_list[0]
+        actual_player: Player = self._players.head().previous().data()
+        next_player: Player = self._players.head().data()
 
-        while not actual_player.winner():
+        while (not actual_player.winner()):
             actual_player = next_player
             if not actual_player.have_allowed_card(self.allowed_cards()):
                 if (self._value_to_buy):

@@ -9,7 +9,7 @@ class DoublyCircularList:
         self._head: Optional[Node] = None
         self._size: int = 0
         if start_list:
-            self._insert_values(values=start_list)
+            self.insert_values(values=start_list)
 
     def head(self) -> Optional[Node]:
         return self._head
@@ -78,7 +78,7 @@ class DoublyCircularList:
 
         return None
 
-    def _insert_values(self, values: List[T]) -> None:
+    def insert_values(self, values: List[T]) -> None:
         for value in values:
             self.push_back(value)
 
