@@ -1,10 +1,11 @@
-from typing import List, Dict, Set, Union
+from typing import List, Dict, Set, Union, Optional
 from random import choice, shuffle
 
 from .Card import Card
 from .Color import Color
 from .Player import Player
 from .CardType import CardType
+from .Node import DoublyLinkedListNode as Node
 from .DoublyCircularList import DoublyCircularList
 
 
@@ -20,6 +21,7 @@ class Table:
     def __init__(self) -> None:
         self._players_list: List[Player] = []
         self._players: DoublyCircularList = DoublyCircularList()
+        self._actual_player_node: Optional[Node] = None
         self._value_to_buy: int = 0
         self._reverse: bool = False
         self._num_players: int = 0
@@ -47,6 +49,7 @@ class Table:
             self._give_cards_to_player(player, num_cards=initial_cards_number)
 
         self._players.insert_values(self._players_list)
+        self._actual_player_node = self._players.head()
         self._set_initial_top_card()
         self._run()
 
@@ -61,7 +64,7 @@ class Table:
             if not actual_player.have_allowed_card(self.allowed_cards()):
                 if (self._value_to_buy):
                     self._give_cards_to_player(actual_player, self._value_to_buy)
-                    next_player: Player = self._next_player(actual_player)
+                    next_player: Player = self._next_player()
                 card: Card = self.get_random_card()
                 actual_player.buy_card(card)
                 while card not in self.allowed_cards():
@@ -82,7 +85,7 @@ class Table:
                 elif new_top.is_change_color():
                     self._set_color(actual_player)
 
-                next_player: Player = self._next_player(actual_player, block=block)
+                next_player: Player = self._next_player(block=block)
                 self._top_card = new_top
 
         return None
@@ -152,15 +155,17 @@ class Table:
 
         return None
 
-    def _next_player(self, actual_player: Player, block: bool = False) -> Player:
-        index: int = self._players_list.index(actual_player)
-        operand: int = 1 + block
-        if self._reverse:
-            return self._players_list[index - operand]
-        elif index + operand >= self._num_players:
-            return self._players_list[(index + operand) % self._num_players]
+    def _next_player(self, block: bool = False) -> Player:
+        if (self._reverse):
+            self._actual_player_node = self._actual_player_node.previous()
+            if (block):
+                self._actual_player_node = self._actual_player_node.previous()
+        else:
+            self._actual_player_node = self._actual_player_node.next()
+            if (block):
+                self._actual_player_node = self._actual_player_node.next()
 
-        return self._players_list[index + operand]
+        return (self._actual_player_node.data())
 
     def allowed_cards(self) -> Set[Card]:
         allowed_cards: Set[Card] = set()
