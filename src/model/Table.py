@@ -150,7 +150,7 @@ class Table:
         if self._reverse:
             return self._players[index - operand]
         elif index + operand >= self._num_players:
-            return self._players[0]
+            return self._players[(index + operand) % self._num_players]
 
         return self._players[index + operand]
 
@@ -165,9 +165,9 @@ class Table:
         else:
             allowed_cards |= set(self._deck_by_key[self._top_card.get_type()])
             allowed_cards |= set(self._deck_by_key[self._top_card.get_color()])
-            if self._top_card.is_change_color():
-                allowed_cards |= set(self._deck_by_key[self._color])
             allowed_cards |= set(self._deck_by_key[Color.BLACK])
+            if (self._top_card.is_change_color()):
+                allowed_cards |= set(self._deck_by_key[self._color])
 
         return allowed_cards
 
