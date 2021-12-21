@@ -8,6 +8,11 @@ from .CardType import CardType
 
 
 initial_cards_number: int = 7
+max_cards_to_block: int = 10
+block_buy_cards: bool = True
+reverse_buy_cards: bool = True
+buy_until_have_card: bool = True
+play_before_buy: bool = False
 
 
 class Table:
@@ -46,7 +51,7 @@ class Table:
         while not actual_player.winner():
             actual_player = next_player
             if not actual_player.have_allowed_card(self.allowed_cards()):
-                if self._value_to_buy:
+                if (self._value_to_buy):
                     self._give_cards_to_player(actual_player, self._value_to_buy)
                     next_player: Player = self._next_player(actual_player)
                 card: Card = self.get_random_card()
@@ -151,10 +156,11 @@ class Table:
 
     def allowed_cards(self) -> Set[Card]:
         allowed_cards: Set[Card] = set()
-        if self._value_to_buy:
+        if (self._value_to_buy):
             allowed_cards |= set(self._deck_by_key[CardType.BUY])
-            allowed_cards |= set(self._deck_by_key[CardType.REVERSE])
-            if self._value_to_buy <= 10:
+            if (reverse_buy_cards):
+                allowed_cards |= set(self._deck_by_key[CardType.REVERSE])
+            if ((block_buy_cards) and (self._value_to_buy <= max_cards_to_block)):
                 allowed_cards |= set(self._deck_by_key[CardType.BLOCK])
         else:
             allowed_cards |= set(self._deck_by_key[self._top_card.get_type()])
