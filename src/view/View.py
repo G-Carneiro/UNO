@@ -52,17 +52,7 @@ class View:
         return None
 
     def _add_button(self, card: Card, x_pos: int, y_pos: int) -> None:
-        name: str = card.get_color().name.lower()
-        if (name == "blue"):
-            button_color: color = blue
-        elif (name == "red"):
-            button_color: color = red
-        elif (name == "green"):
-            button_color: color = green
-        elif (name == "yellow"):
-            button_color: color = yellow
-        else:
-            button_color: color = black
+        button_color: color = card.get_color().get_rgb_color()
 
         button: Button = Button(self._window,
                                 x=x_pos, y=y_pos,
