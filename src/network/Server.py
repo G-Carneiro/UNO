@@ -3,6 +3,8 @@ from pickle import dumps, loads
 from _thread import start_new_thread
 from typing import Tuple
 
+from ..model.Player import Player
+
 
 class Server:
     def __init__(self, port: int = 5555, connection_limit: int = 10) -> None:
@@ -24,7 +26,7 @@ class Server:
 
     def thread_client(self, connection: socket) -> None:
         while True:
-            data = loads(connection.recv(4096))
+            data: Player = loads(connection.recv(4096))
             if (not data):
                 break
 
@@ -35,4 +37,4 @@ class Server:
         while True:
             client_connection, client_address = self._server_socket.accept()
 
-            start_new_thread(self.thread_client, ())
+            start_new_thread(self.thread_client, (client_connection,))
