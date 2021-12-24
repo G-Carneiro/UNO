@@ -22,8 +22,14 @@ class Server:
     def get_host(self) -> str:
         return self._host
 
-    def thread_client(self) -> None:
-        pass
+    def thread_client(self, connection: socket) -> None:
+        while True:
+            data = loads(connection.recv(4096))
+            if (not data):
+                break
+
+        connection.close()
+        return None
 
     def run(self) -> None:
         while True:
