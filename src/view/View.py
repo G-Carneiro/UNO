@@ -1,6 +1,7 @@
+import os.path
 from typing import List, Optional
 
-from pygame import display, font, event, QUIT, quit, Surface
+from pygame import display, font, event, QUIT, quit, Surface, image, transform
 from pygame.time import Clock
 import pygame_widgets
 from pygame_widgets.button import Button
@@ -25,7 +26,7 @@ class View:
         self._player: Optional[Player] = None
         self._width: int = width
         self._height: int = height
-        self._top_card: Optional[Card] = None
+        self._top_card: Optional[Card] = Card(color=Color.GREEN, value=3)
         self._reverse: bool = False
         self._buy_cards: int = 0
         self._buttons: List[Button] = []
@@ -51,20 +52,30 @@ class View:
         self._top_card = card
         return None
 
-    def _add_button(self, card: Card, x_pos: int, y_pos: int) -> None:
-        button_color: color = card.get_color().get_rgb_color()
+    def _add_button(self, card: Card, x_pos: int, y_pos: int, rotate: int = 0) -> None:
+        png: str = card.__repr__().lower() + ".png"
+        img: Surface = image.load(os.path.join("/home/gabriel/Git/UNO/Cards", png))
+
+        if rotate:
+            img = transform.rotate(img, rotate)
+            img = transform.scale(img, (128, 85))
+            width, height = img.get_width(), img.get_height()
+            x_pos = self._get_x_center_of_window(width)
+            y_pos = 100
+        else:
+            width: int = img.get_width()
+            height: int = img.get_height()
 
         button: Button = Button(self._window,
                                 x=x_pos, y=y_pos,
-                                width=button_width, height=button_height,
-                                textColour=text_color, radius=20,
-                                text=card.__repr__(), inactiveColour=button_color,
+                                width=width, height=height,
+                                radius=30, image=img,
                                 onClick=self._player.put_card, onClickParams=(card,))
         self._buttons.append(button)
         return None
 
     def draw_players(self) -> None:
-        self._players = [Player("Gabriel"), Player("Thyago")]
+        self._players = [Player("Gabriel"), Player("Thyago")]   # TODO: remove
         x_player: int = 10
         y_player: int = 10
         text_font = font.SysFont("comicsans", 20)
@@ -79,24 +90,36 @@ class View:
         return None
 
     def draw_cards(self) -> None:
-        self._player._cards = []
+        self._player._cards = []    # TODO: remove
         x_button: int = 0
         y_button: int = 400
-        for _ in range(12):
-            card: Card = Card(color=Color.BLUE, value=2)
+        for _ in range(20):     # TODO: remove
+            card: Card = Card(color=Color.RED, value=2)
             self._player._cards.append(card)
 
         for card in self._player.get_cards():
             self._add_button(card=card, x_pos=x_button, y_pos=y_button)
-            x_button += button_width
+            x_button += 60
             if (x_button >= self._window.get_height()):
-                y_button += button_height
+                y_button += 75
+                x_button = 0
             x_button %= self._window.get_width()
 
         return None
 
     def draw_table_infos(self) -> None:
-        pass
+        text_font = font.SysFont("comicsans", 30)
+        reverse = text_font.render(f"Reverse: {self._reverse}", True, text_color)
+        buy = text_font.render(f"Value to buy: {self._buy_cards}", True, text_color)
+        x_reverse = self._window.get_width() - reverse.get_width() - 10
+        x_buy = self._window.get_width() - buy.get_width() - 10
+        self._window.blit(reverse, (x_reverse, 80))
+        self._window.blit(buy, (x_buy, 120))
+
+        x_card, y_card = self._get_center_of_window(button_width, button_height)
+        self._add_button(self._top_card, x_card, y_card, rotate=90)
+
+        return None
 
     def update_window(self) -> None:
         run: bool = True
