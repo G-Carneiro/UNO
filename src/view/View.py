@@ -10,14 +10,11 @@ from ..model.Card import Card
 from ..model.Player import Player
 from .colors import *
 
-button_width: int = 50
+button_width: int = 100
 button_height: int = 50
 
 
 class View:
-    x_button: int = 100
-    y_button: int = 100
-
     def __init__(self,
                  width: int = 700,
                  height: int = 700,
@@ -33,6 +30,7 @@ class View:
         self._buttons: List[Button] = []
         self._window: display = display.set_mode((width, height))
         self._window_configuration(caption)
+        self._menu_screen()
 
     @staticmethod
     def _window_configuration(caption: str) -> None:
@@ -78,7 +76,8 @@ class View:
         pass
 
     def draw_cards(self) -> None:
-        pass
+        x_button: int = 100
+        y_button: int = 100
 
     def draw_table_infos(self) -> None:
         pass
@@ -98,11 +97,20 @@ class View:
         clock: Clock = Clock()
         text_font = font.SysFont("comicsans", 40)
         text = text_font.render("Enter your name", True, text_color)
-        textbox: TextBox = TextBox(self._window, 100, 100, 100, 100,
-                                   fontSize=20, textColour=black)
-        enter_button: Button = Button(self._window, x=100, y=150, width=50, height=30,
-                                      text="Enter", textColour=text_color, inactiveColour=black,
-                                      onClick=self._create_player, onClickParams=(textbox.getText()))
+        text_x: int = self._get_x_center_of_window(text.get_width())
+
+        textbox_width: int = 200
+        textbox_height: int = 50
+        textbox_x: int = self._get_x_center_of_window(textbox_width)
+        textbox_y: int = 100
+        textbox: TextBox = TextBox(self._window, x=textbox_x, y=textbox_y, width=textbox_width,
+                                   height=textbox_height, fontSize=30, textColour=black)
+
+        button_x: int = self._get_x_center_of_window(button_width)
+        Button(self._window, x=button_x, y=170, width=button_width,
+               height=40, text="Enter", textColour=text_color, fontSize=30,
+               inactiveColour=black, onClick=self._create_player,
+               onClickParams=(textbox.getText(),))
 
         while run:
             clock.tick(60)
@@ -113,7 +121,7 @@ class View:
                     run = False
 
             self._window.fill(background)
-            self._window.blit(text, (100, 50))
+            self._window.blit(text, (text_x, 50))
             pygame_widgets.update(events)
             display.update()
 
@@ -121,4 +129,13 @@ class View:
                 run = False
 
         return None
+
+    def _get_x_center_of_window(self, width: int) -> int:
+        return (self._window.get_width() // 2 - width // 2)
+
+    def _get_y_center_of_window(self, height: int) -> int:
+        return (self._window.get_height() // 2 - height // 2)
+
+    def _get_center_of_window(self, width: int, height: int) -> Tuple[int, int]:
+        return (self._get_x_center_of_window(width), self._get_y_center_of_window(height))
 
