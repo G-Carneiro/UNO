@@ -2,8 +2,8 @@ from typing import List, Optional
 
 from pygame import display, font
 
-from ..model.Player import Player
 from ..model.Card import Card
+from ..model.Player import Player
 
 
 class View:
