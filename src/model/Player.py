@@ -14,6 +14,9 @@ class Player:
     def get_cards(self) -> List[Card]:
         return self._cards
 
+    def get_num_cards(self) -> int:
+        return len(self._cards)
+
     def put_card(self, card: Card) -> None:
         self._cards.remove(card)
         return None

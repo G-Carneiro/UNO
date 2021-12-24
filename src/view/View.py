@@ -1,12 +1,13 @@
 from typing import List, Optional
 
-from pygame import display, font, event, QUIT, quit
+from pygame import display, font, event, QUIT, quit, Surface
 from pygame.time import Clock
 import pygame_widgets
 from pygame_widgets.button import Button
 from pygame_widgets.textbox import TextBox
 
 from ..model.Card import Card
+from ..model.Color import Color
 from ..model.Player import Player
 from .colors import *
 
@@ -50,7 +51,7 @@ class View:
         self._top_card = card
         return None
 
-    def _add_button(self, card: Card) -> None:
+    def _add_button(self, card: Card, x_pos: int, y_pos: int) -> None:
         name: str = card.get_color().name.lower()
         if (name == "blue"):
             button_color: color = blue
@@ -64,32 +65,71 @@ class View:
             button_color: color = black
 
         button: Button = Button(self._window,
-                                x=100, y=100,
+                                x=x_pos, y=y_pos,
                                 width=button_width, height=button_height,
                                 textColour=text_color, radius=20,
                                 text=card.__repr__(), inactiveColour=button_color,
-                                onClick=self._player.put_card, onClickParams=(card))
+                                onClick=self._player.put_card, onClickParams=(card,))
         self._buttons.append(button)
         return None
 
     def draw_players(self) -> None:
-        pass
+        self._players = [Player("Gabriel"), Player("Thyago")]
+        x_player: int = 10
+        y_player: int = 10
+        text_font = font.SysFont("comicsans", 20)
+        for player in self._players:
+            name = text_font.render(player.get_name(), True, text_color)
+            num_cards = text_font.render(str(player.get_num_cards()), True, text_color)
+            self._window.blit(name, (x_player, y_player))
+            x_num_cards: int = x_player + name.get_width() // 2
+            self._window.blit(num_cards, (x_num_cards, y_player + 20))
+            x_player += name.get_width() + 20
+
+        return None
 
     def draw_cards(self) -> None:
-        x_button: int = 100
-        y_button: int = 100
+        self._player._cards = []
+        x_button: int = 0
+        y_button: int = 400
+        for _ in range(12):
+            card: Card = Card(color=Color.BLUE, value=2)
+            self._player._cards.append(card)
+
+        for card in self._player.get_cards():
+            self._add_button(card=card, x_pos=x_button, y_pos=y_button)
+            x_button += button_width
+            if (x_button >= self._window.get_height()):
+                y_button += button_height
+            x_button %= self._window.get_width()
+
+        return None
 
     def draw_table_infos(self) -> None:
         pass
 
-    def update_window(self, actual_player: Player) -> None:
-        if (self._player == actual_player):
-            pass
+    def update_window(self) -> None:
+        run: bool = True
+        clock: Clock = Clock()
+        while run:
+            clock.tick(60)
+            events = event.get()
+            for event_ in events:
+                if (event_.type == QUIT):
+                    quit()
+                    run = False
+
+            self._window.fill(background)
+            self.draw_table_infos()
+            self.draw_players()
+            self.draw_cards()
+            pygame_widgets.update(events)
+            display.update()
 
         return None
 
-    def _create_player(self, name: str) -> None:
-        self._player: Player = Player(name=name)
+    def _create_player(self, textbox: TextBox) -> None:
+        self._player: Player = Player(name=textbox.getText())
         return None
 
     def _menu_screen(self) -> None:
@@ -107,10 +147,10 @@ class View:
                                    height=textbox_height, fontSize=30, textColour=black)
 
         button_x: int = self._get_x_center_of_window(button_width)
-        Button(self._window, x=button_x, y=170, width=button_width,
-               height=40, text="Enter", textColour=text_color, fontSize=30,
-               inactiveColour=black, onClick=self._create_player,
-               onClickParams=(textbox.getText(),))
+        enter_button: Button = Button(self._window, x=button_x, y=170, width=button_width,
+                                      height=40, text="Enter", textColour=text_color, fontSize=30,
+                                      inactiveColour=black, onClick=self._create_player,
+                                      onClickParams=(textbox,))
 
         while run:
             clock.tick(60)
@@ -127,6 +167,12 @@ class View:
 
             if (self._player is not None):
                 run = False
+
+        enter_button.disable()
+        textbox.disable()
+        enter_button.hide()
+        textbox.hide()
+        self.update_window()
 
         return None
 
