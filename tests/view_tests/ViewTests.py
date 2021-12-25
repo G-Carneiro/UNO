@@ -18,7 +18,7 @@ class ViewTests(TestCase):
             card: Card = Card(color=Color.RED, value=2)
             player._cards.append(card)
 
-        self._view._menu_screen()
+        self._view.update_window()
 
 
 

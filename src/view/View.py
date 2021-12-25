@@ -1,4 +1,5 @@
 import os.path
+from time import sleep
 from typing import List, Optional
 
 from pygame import display, font, event, QUIT, quit, Surface, image, transform
@@ -52,19 +53,24 @@ class View:
         self._top_card = card
         return None
 
-    def _add_button(self, card: Card, x_pos: int, y_pos: int, rotate: int = 0) -> None:
+    def _draw_top_card(self) -> None:
+        name: str = self._top_card.__repr__().lower() + ".png"
+        img: Surface = image.load(os.path.join("/home/gabriel/Git/UNO/Cards", name))
+        img = transform.rotate(img, 90)
+        img = transform.scale(img, (128, 85))
+        width, height = img.get_width(), img.get_height()
+        x_pos = self._get_x_center_of_window(width)
+        y_pos = 100
+
+        self._window.blit(img, (x_pos, y_pos))
+
+        return None
+
+    def _add_button(self, card: Card, x_pos: int, y_pos: int) -> None:
         png: str = card.__repr__().lower() + ".png"
         img: Surface = image.load(os.path.join("/home/gabriel/Git/UNO/Cards", png))
-
-        if rotate:
-            img = transform.rotate(img, rotate)
-            img = transform.scale(img, (128, 85))
-            width, height = img.get_width(), img.get_height()
-            x_pos = self._get_x_center_of_window(width)
-            y_pos = 100
-        else:
-            width: int = img.get_width()
-            height: int = img.get_height()
+        width: int = img.get_width()
+        height: int = img.get_height()
 
         button: Button = Button(self._window,
                                 x=x_pos, y=y_pos,
@@ -111,8 +117,7 @@ class View:
         self._window.blit(reverse, (x_reverse, 80))
         self._window.blit(buy, (x_buy, 120))
 
-        x_card, y_card = self._get_center_of_window(button_width, button_height)
-        self._add_button(self._top_card, x_card, y_card, rotate=90)
+        self._draw_top_card()
 
         return None
 
@@ -192,4 +197,3 @@ class View:
 
     def _get_center_of_window(self, width: int, height: int) -> Tuple[int, int]:
         return (self._get_x_center_of_window(width), self._get_y_center_of_window(height))
-
