@@ -13,9 +13,6 @@ from ..model.Color import Color
 from ..model.Player import Player
 from .colors import *
 
-button_width: int = 100
-button_height: int = 50
-
 
 class View:
     def __init__(self,
@@ -159,8 +156,8 @@ class View:
         textbox: TextBox = TextBox(self._window, x=textbox_x, y=textbox_y, width=textbox_width,
                                    height=textbox_height, fontSize=30, textColour=black)
 
-        button_x: int = self._get_x_center_of_window(button_width)
-        enter_button: Button = Button(self._window, x=button_x, y=170, width=button_width,
+        button_x: int = self._get_x_center_of_window(100)
+        enter_button: Button = Button(self._window, x=button_x, y=170, width=100,
                                       height=40, text="Enter", textColour=text_color, fontSize=30,
                                       inactiveColour=black, onClick=self._create_player,
                                       onClickParams=(textbox,))
@@ -185,6 +182,7 @@ class View:
         textbox.disable()
         enter_button.hide()
         textbox.hide()
+        del enter_button, textbox
         self.update_window()
 
         return None
