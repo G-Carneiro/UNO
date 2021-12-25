@@ -1,5 +1,5 @@
 import os.path
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import pygame_widgets
 from pygame import display, font, event, QUIT, quit, Surface, image, transform
@@ -29,6 +29,7 @@ class View:
         self._reverse: bool = False
         self._buy_cards: int = 0
         self._buttons: List[Button] = []
+        self._card_buttons: Dict[Card, List[Button]] = {}
         self._window: display = display.set_mode((width, height))
         self._window_configuration(caption)
         # self._menu_screen()
@@ -51,6 +52,25 @@ class View:
         self._top_card = card
         return None
 
+    def add_card(self, card: Card) -> None:
+        self._player.buy_card(card)
+        self._add_button(card)
+        return None
+
+    def _select_card(self, card: Card) -> None:
+        self.set_top_card(card)
+        self._player.put_card(card)
+        button: Button = self._card_buttons[card].pop()
+        self._remove_button(button)
+        return None
+
+    def _remove_button(self, button: Button) -> None:
+        self._buttons.remove(button)
+        button.disable()
+        button.hide()
+        del button
+        return None
+
     def _draw_top_card(self) -> None:
         name: str = self._top_card.__repr__().lower() + ".png"
         img: Surface = image.load(os.path.join("/home/gabriel/Git/UNO/Cards", name))
@@ -64,18 +84,21 @@ class View:
 
         return None
 
-    def _add_button(self, card: Card, x_pos: int, y_pos: int) -> None:
+    def _add_button(self, card: Card) -> None:
         png: str = card.__repr__().lower() + ".png"
-        img: Surface = image.load(os.path.join("/home/gabriel/Git/UNO/Cards", png))
+        img: Surface = image.load(os.path.join("/home/gabriel/Git/UNO/Cards", png))     # FIXME
         width: int = img.get_width()
         height: int = img.get_height()
 
-        button: Button = Button(self._window,
-                                x=x_pos, y=y_pos,
-                                width=width, height=height,
-                                radius=30, image=img,
-                                onClick=self._player.put_card, onClickParams=(card,))
+        button: Button = Button(self._window, x=0, y=0, width=width, height=height, radius=30,
+                                image=img, onClick=self._select_card, onClickParams=(card,))
+        try:
+            self._card_buttons[card].append(button)
+        except KeyError:
+            self._card_buttons[card] = [button]
+
         self._buttons.append(button)
+
         return None
 
     def draw_players(self) -> None:
@@ -96,10 +119,11 @@ class View:
         x_button: int = 0
         y_button: int = 400
 
-        for card in self._player.get_cards():
-            self._add_button(card=card, x_pos=x_button, y_pos=y_button)
-            x_button += 60
-            if (x_button + 60 >= self._window.get_height()):
+        for button in self._buttons:
+            button.setX(x_button)
+            button.setY(y_button)
+            x_button += 75
+            if (x_button + 75 >= self._window.get_height()):
                 y_button += 75
                 x_button = 0
 
@@ -126,8 +150,8 @@ class View:
             events = event.get()
             for event_ in events:
                 if (event_.type == QUIT):
-                    quit()
                     run = False
+                    quit()
 
             self._window.fill(background)
             self.draw_table_infos()
@@ -167,8 +191,8 @@ class View:
             events = event.get()
             for event_ in events:
                 if (event_.type == QUIT):
-                    quit()
                     run = False
+                    quit()
 
             self._window.fill(background)
             self._window.blit(text, (text_x, 50))

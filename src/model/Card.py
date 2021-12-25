@@ -62,6 +62,7 @@ class Card:
         else:
             out += str(self.get_type().name)
 
-        out += str(self._color.name)
+        if (self._color != Color.BLACK):
+            out += str(self._color.name)
 
         return out
