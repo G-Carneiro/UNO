@@ -14,6 +14,9 @@ from ..model.Player import Player
 from .colors import *
 
 
+default_font: str = "comicsans"
+
+
 class View:
     def __init__(self,
                  width: int = 700,
@@ -80,7 +83,7 @@ class View:
     def draw_players(self) -> None:
         x_player: int = 10
         y_player: int = 10
-        text_font = font.SysFont("comicsans", 20)
+        text_font = font.SysFont(default_font, 20)
         for player in self._players:
             name = text_font.render(player.get_name(), True, text_color)
             num_cards = text_font.render(str(player.get_num_cards()), True, text_color)
@@ -101,12 +104,11 @@ class View:
             if (x_button + 60 >= self._window.get_height()):
                 y_button += 75
                 x_button = 0
-            x_button %= self._window.get_width()
 
         return None
 
     def draw_table_infos(self) -> None:
-        text_font = font.SysFont("comicsans", 30)
+        text_font = font.SysFont(default_font, 30)
         reverse = text_font.render(f"Reverse: {self._reverse}", True, text_color)
         buy = text_font.render(f"Value to buy: {self._buy_cards}", True, text_color)
         x_reverse = self._window.get_width() - reverse.get_width() - 10
@@ -145,7 +147,7 @@ class View:
     def _menu_screen(self) -> None:
         run: bool = True
         clock: Clock = Clock()
-        text_font = font.SysFont("comicsans", 40)
+        text_font = font.SysFont(default_font, 40)
         text = text_font.render("Enter your name", True, text_color)
         text_x: int = self._get_x_center_of_window(text.get_width())
 
