@@ -1,18 +1,16 @@
 import os.path
-from time import sleep
 from typing import List, Optional
 
+import pygame_widgets
 from pygame import display, font, event, QUIT, quit, Surface, image, transform
 from pygame.time import Clock
-import pygame_widgets
 from pygame_widgets.button import Button
 from pygame_widgets.textbox import TextBox
 
+from .colors import *
 from ..model.Card import Card
 from ..model.Color import Color
 from ..model.Player import Player
-from .colors import *
-
 
 default_font: str = "comicsans"
 
