@@ -32,7 +32,7 @@ class View:
         self._buttons: List[Button] = []
         self._window: display = display.set_mode((width, height))
         self._window_configuration(caption)
-        self._menu_screen()
+        # self._menu_screen()
 
     @staticmethod
     def _window_configuration(caption: str) -> None:
@@ -75,7 +75,6 @@ class View:
         return None
 
     def draw_players(self) -> None:
-        self._players = [Player("Gabriel"), Player("Thyago")]   # TODO: remove
         x_player: int = 10
         y_player: int = 10
         text_font = font.SysFont("comicsans", 20)
@@ -90,17 +89,13 @@ class View:
         return None
 
     def draw_cards(self) -> None:
-        self._player._cards = []    # TODO: remove
         x_button: int = 0
         y_button: int = 400
-        for _ in range(20):     # TODO: remove
-            card: Card = Card(color=Color.RED, value=2)
-            self._player._cards.append(card)
 
         for card in self._player.get_cards():
             self._add_button(card=card, x_pos=x_button, y_pos=y_button)
             x_button += 60
-            if (x_button >= self._window.get_height()):
+            if (x_button + 60 >= self._window.get_height()):
                 y_button += 75
                 x_button = 0
             x_button %= self._window.get_width()
