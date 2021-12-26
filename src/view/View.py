@@ -1,5 +1,5 @@
 import os.path
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Set
 
 import pygame_widgets
 from pygame import display, font, event, QUIT, quit, Surface, image, transform
@@ -84,6 +84,20 @@ class View:
 
         return None
 
+    def _disable_buttons(self) -> None:
+        for button in self._buttons:
+            button.disable()
+
+        return None
+
+    def _enable_buttons(self, allowed_cards: Set[Card]) -> None:
+        for card, buttons in self._card_buttons.items():
+            if (card in allowed_cards):
+                for button in buttons:
+                    button.enable()
+
+        return None
+
     def _add_button(self, card: Card) -> None:
         png: str = card.__repr__().lower() + ".png"
         img: Surface = image.load(os.path.join("/home/gabriel/Git/UNO/Cards", png))     # FIXME
@@ -117,7 +131,7 @@ class View:
 
     def draw_cards(self) -> None:
         x_button: int = 0
-        y_button: int = 400
+        y_button: int = 250
 
         for button in self._buttons:
             button.setX(x_button)
