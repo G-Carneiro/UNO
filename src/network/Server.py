@@ -4,14 +4,16 @@ from _thread import start_new_thread
 from typing import Tuple
 
 from ..model.Player import Player
+from ..model.Table import Table
 
 
 class Server:
     def __init__(self, port: int = 5555, connection_limit: int = 10) -> None:
         self._port: int = port
-        self._host: str = gethostname()
+        self._host: str = gethostname()     # "189.34.1.182"
         self._address: Tuple[str, int] = (self._host, self._port)
         self._server_socket: socket = socket(AF_INET, SOCK_STREAM)
+        self._table: Table = Table()
         self._server_socket.bind(self._address)
         self._server_socket.listen(connection_limit)
 

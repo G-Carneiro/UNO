@@ -12,7 +12,7 @@ from ..model.Card import Card
 from ..model.Color import Color
 from ..model.Player import Player
 
-default_font: str = "comicsans"
+default_font: str = "roboto"
 
 
 class View:
@@ -123,7 +123,7 @@ class View:
             name = text_font.render(player.get_name(), True, text_color)
             num_cards = text_font.render(str(player.get_num_cards()), True, text_color)
             self._window.blit(name, (x_player, y_player))
-            x_num_cards: int = x_player + name.get_width() // 2
+            x_num_cards: int = x_player + name.get_width() // 2 - num_cards.get_width() // 2
             self._window.blit(num_cards, (x_num_cards, y_player + 20))
             x_player += name.get_width() + 20
 
