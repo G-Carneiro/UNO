@@ -51,7 +51,7 @@ class Table:
         self._players.insert_values(self._players_list)
         self._actual_player_node = self._players.head()
         self._set_initial_top_card()
-        self._run()
+        # self._run()
 
         return None
 
@@ -75,22 +75,59 @@ class Table:
                         actual_player.buy_card(card)
 
             # FIXME: remove
-            if actual_player == next_player:
-                new_top: Card = actual_player.put_allowed_card(allowed_cards)
-                block: bool = False
-                if new_top.is_reverse():
-                    self._reverse = not self._reverse
-                elif new_top.is_block():
-                    if self._value_to_buy:
-                        self._value_to_buy = 0
-                    else:
-                        block = True
-                elif new_top.is_change_color():
-                    self._set_color(actual_player)
+            # if actual_player == next_player:
+            #     print("fudeu")
+            #     new_top: Card = actual_player.put_allowed_card(allowed_cards)
+            #     block: bool = False
+            #     if new_top.is_reverse():
+            #         self._reverse = not self._reverse
+            #     elif new_top.is_block():
+            #         if self._value_to_buy:
+            #             self._value_to_buy = 0
+            #         else:
+            #             block = True
+            #     elif new_top.is_change_color():
+            #         self._set_color(actual_player)
+            #
+            #     next_player: Player = self._next_player(block=block)
+            #     self._top_card = new_top
 
-                next_player: Player = self._next_player(block=block)
-                self._top_card = new_top
+        return None
 
+    def turn(self, card: Card) -> None:
+        current_player: Player = self.current_player()
+        allowed_cards = self.allowed_cards()
+        if (not current_player.have_allowed_card(allowed_cards)):
+            if (self._value_to_buy):
+                self._give_cards_to_player(current_player, self._value_to_buy)
+                self._value_to_buy = 0
+            else:
+                card: Card = self.get_random_card()
+                while card not in allowed_cards:
+                    current_player.buy_card(card)
+                    card: Card = self.get_random_card()
+
+        self._play_card(card=card)
+
+        return None
+
+    def current_player(self) -> Player:
+        return self._actual_player_node.data()
+
+    def _play_card(self, card: Card) -> None:
+        self._top_card = card
+        block: bool = False
+        if self._top_card.is_reverse():
+            self._reverse = not self._reverse
+        elif self._top_card.is_block():
+            if self._value_to_buy:
+                self._value_to_buy = 0
+            else:
+                block = True
+        elif self._top_card.is_change_color():
+            self._set_color(self._actual_player_node.data())
+
+        self._next_player(block=block)
         return None
 
     def _give_cards_to_player(self, player: Player, num_cards: int = 1) -> None:
