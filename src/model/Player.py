@@ -4,9 +4,13 @@ from .Card import Card
 
 
 class Player:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, id_: int) -> None:
         self._name: str = name
+        self._id: int = id_
         self._cards: List[Card] = []
+
+    def id(self) -> int:
+        return self._id
 
     def get_name(self) -> str:
         return self._name
@@ -38,6 +42,12 @@ class Player:
                 self.put_card(card)
                 return card
 
+        return None
+
+    def select_card(self, name: str) -> Optional[Card]:
+        for card in self._cards:
+            if (name == str(card)):
+                return card
         return None
 
     def __repr__(self) -> str:

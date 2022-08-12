@@ -65,3 +65,6 @@ class Card:
         out += str(self._color.name)
 
         return out
+
+    def __str__(self) -> str:
+        return self.__repr__()

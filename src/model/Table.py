@@ -30,6 +30,9 @@ class Table:
     def get_players(self) -> List[Player]:
         return self._players_list
 
+    def current_card(self) -> Card:
+        return self._top_card
+
     def add_player(self, player: Player) -> None:
         self._players_list.append(player)
         return None
@@ -94,22 +97,25 @@ class Table:
 
         return None
 
-    def turn(self, card: Card) -> None:
+    def turn(self, card: Card) -> bool:
         current_player: Player = self.current_player()
         allowed_cards = self.allowed_cards()
-        if (not current_player.have_allowed_card(allowed_cards)):
-            if (self._value_to_buy):
-                self._give_cards_to_player(current_player, self._value_to_buy)
-                self._value_to_buy = 0
-            else:
-                card: Card = self.get_random_card()
-                while card not in allowed_cards:
-                    current_player.buy_card(card)
+        if (card not in allowed_cards):
+            if (not current_player.have_allowed_card(allowed_cards)):
+                if (self._value_to_buy):
+                    self._give_cards_to_player(current_player, self._value_to_buy)
+                    self._value_to_buy = 0
+                else:
                     card: Card = self.get_random_card()
+                    while card not in allowed_cards:
+                        current_player.buy_card(card)
+                        card: Card = self.get_random_card()
+            else:
+                return False
 
         self._play_card(card=card)
 
-        return None
+        return True
 
     def current_player(self) -> Player:
         return self._actual_player_node.data()
