@@ -3,15 +3,16 @@ from typing import List, Optional
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, \
     InlineQueryResultCachedSticker, Bot, InlineQueryResultCachedSticker, InputTextMessageContent
 from telegram.ext import CallbackContext, CommandHandler, Updater, InlineQueryHandler, ChosenInlineResultHandler, \
-    CallbackQueryHandler
+    CallbackQueryHandler, run_async
 
 from src.model.Card import Card
 from src.model.Player import Player
 from src.model.Table import Table
 
-updater: Updater = Updater("")
+updater: Updater = Updater("5354446808:AAEL1YJKk8Vjl7zbsU-RpX2q8f3G87eOjCA")
 dispatcher = updater.dispatcher
 table: Optional[Table] = None
+chat_id: Optional[int] = None
 
 STICKERS = {
     '0blue': 'BQADBAAD2QEAAl9XmQAB--inQsYcLTsC',
@@ -75,13 +76,6 @@ STICKERS = {
 }
 
 
-def start(update: Update, context: CallbackContext) -> None:
-    message: str = "Hi this is a test! \n" \
-                   "Type /help for more information."
-    update.message.reply_text(message)
-    return None
-
-
 def create_game(update: Update, context: CallbackContext) -> None:
     global table
     table = Table()
@@ -105,26 +99,32 @@ def start_game(update: Update, callback: CallbackContext) -> None:
     table.start_game()
     chat = update.message.chat
     bot: Bot = update.message.bot
+    global chat_id
+    chat_id = chat.id
     current_player: Player = table.current_player()
     message: str = f"Game started! \n" \
                    f"Current card is {table.current_card()}. \n" \
                    f"Players are {table.get_players()}. \n" \
                    f"First player is {current_player}. \n"
-    send_message_to_all(update=update, message=message)
-    show_cards()
+    # send_message_to_all(update=update, message=message)
+    bot.send_message(chat_id, text=message, reply_markup=InlineKeyboardMarkup(make_choice()))
 
     return None
 
 
-def show_cards() -> None:
-    card_buttons: List[List[InlineKeyboardButton]] = []
+def make_choice() -> List[List[InlineKeyboardButton]]:
+    return [[InlineKeyboardButton(text="Make your choice!", switch_inline_query_current_chat='')]]
+
+
+def show_cards(update: Update, callback: CallbackContext) -> None:
+    print("hi")
+    card_buttons = []
     current_player: Player = table.current_player()
     for card in current_player.get_cards():
-        new_button = InlineKeyboardButton(str(card), callback_data=str(card))
-        card_buttons.append([new_button])
+        new_button = InlineQueryResultCachedSticker(str(card), sticker_file_id=STICKERS[str(card).lower()])
+        card_buttons.append(new_button)
     # bot.send_message(chat.id, text="Make your choice!", reply_markup=card_buttons)
-    updater.bot.send_message(text="Make your choice!", chat_id=current_player.id(),
-                             reply_markup=InlineKeyboardMarkup(card_buttons))
+    updater.bot.answer_inline_query(update.inline_query.id, card_buttons)
     return None
 
 
@@ -139,15 +139,17 @@ def send_message_to_all(update: Update, message: str,
 
 def selected_card(update: Update, context: CallbackContext) -> None:
     current_player: Player = table.current_player()
-    query = update.callback_query
-    sender_id: int = query.from_user.id
+    inline_result = update.chosen_inline_result
+    user = inline_result.from_user
+    card_name: str = inline_result.result_id
+    sender_id: int = user.id
     if (current_player.id() == sender_id):
-        card: Card = current_player.select_card(name=query.data)
+        card: Card = current_player.select_card(name=card_name)
         played: bool = table.turn(card=card)
         if played:
             # send_message_to_all(update=update, message=status())
-            updater.bot.send_message(text=status(), chat_id=query.message.chat.id)
-            show_cards()
+            updater.bot.send_message(chat_id, text=status(), reply_markup=InlineKeyboardMarkup(make_choice()))
+            # show_cards()
 
     return None
 
@@ -167,11 +169,11 @@ def process_result():
     pass
 
 
-dispatcher.add_handler(InlineQueryHandler(reply_to_query))
-dispatcher.add_handler(ChosenInlineResultHandler(process_result, pass_job_queue=True))
-dispatcher.add_handler(CallbackQueryHandler(selected_card))
+dispatcher.add_handler(InlineQueryHandler(show_cards))
+dispatcher.add_handler(ChosenInlineResultHandler(selected_card, pass_job_queue=True))
+# dispatcher.add_handler(CallbackQueryHandler(show_cards))
 dispatcher.add_handler(CommandHandler("join_game", join_game))
-dispatcher.add_handler(CommandHandler("start_game", start_game))
+dispatcher.add_handler(CommandHandler("start_game", start_game, pass_args=True, pass_job_queue=True))
 dispatcher.add_handler(CommandHandler("create_game", create_game))
 updater.start_polling()
-# updater.idle()
+updater.idle()
