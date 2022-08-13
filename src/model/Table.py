@@ -126,6 +126,7 @@ class Table:
         return self._actual_player_node.data()
 
     def _play_card(self, card: Card) -> None:
+        self.current_player().put_card(card=card)
         self._top_card = card
         block: bool = False
         if self._top_card.is_reverse():

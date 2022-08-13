@@ -103,7 +103,7 @@ def join_game(update: Update, context: CallbackContext) -> None:
 
 
 def start_game(update: Update, callback: CallbackContext) -> None:
-    bot: Bot = update.message.bot
+    bot: Bot = callback.bot
     chat = update.message.chat
     global chat_id
     chat_id = chat.id
@@ -117,6 +117,9 @@ def start_game(update: Update, callback: CallbackContext) -> None:
 
     table.start_game()
     current_player: Player = table.current_player()
+    # for player in table.get_players():
+    #     print(f"{player}: {player.get_cards()}")
+
     message: str = f"Game started! \n" \
                    f"Current card is {table.current_card()}. \n" \
                    f"Players are {table.get_players()}. \n" \
@@ -137,11 +140,12 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
     current_player: Player = table.current_player()
     user_id: int = update.inline_query.from_user.id
     player: Player = table.get_player(user_id)
+    # print(player)
     if (player is None):
         return None
     added_cards: List[str] = []
     if (user_id == current_player.id()):
-        for card in sorted(player.get_cards()):
+        for card in sorted(current_player.get_cards()):
             card_name: str = str(card).lower()
             if (card_name in added_cards):
                 sticker_id: str = str(uuid4())
@@ -164,7 +168,9 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
             card_buttons.append(new_sticker)
 
     # bot.send_message(chat.id, text="Make your choice!", reply_markup=card_buttons)
-    updater.bot.answer_inline_query(update.inline_query.id, card_buttons)
+    bot = callback.bot
+    # dispatcher.run_async(bot.answer_inline_query, update.inline_query.id, card_buttons, cache_time=0)
+    bot.answer_inline_query(update.inline_query.id, card_buttons, cache_time=0)
     return None
 
 
@@ -190,8 +196,10 @@ def selected_card(update: Update, context: CallbackContext) -> None:
         played: bool = table.turn(card=card)
         if played:
             # send_message_to_all(update=update, message=status())
-            updater.bot.send_message(chat_id, text=status(), reply_markup=InlineKeyboardMarkup(make_choice()))
-            # show_cards()
+            bot = context.bot
+            # dispatcher.run_async(bot.send_message, chat_id, text=status(),
+            #                      reply_markup=InlineKeyboardMarkup(make_choice()))
+            bot.send_message(chat_id, text=status(), reply_markup=InlineKeyboardMarkup(make_choice()))
 
     return None
 
