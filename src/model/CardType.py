@@ -1,8 +1,9 @@
-from enum import Enum, auto
+from enum import Enum
 
 
 class CardType(Enum):
-    BUY = auto()
-    BLOCK = auto()
-    REVERSE = auto()
-    CHANGE_COLOR = auto()
+    INT = 0
+    BUY = 1
+    BLOCK = 2
+    REVERSE = 3
+    CHANGE_COLOR = 4

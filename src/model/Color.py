@@ -1,9 +1,9 @@
-from enum import Enum, auto
+from enum import Enum
 
 
 class Color(Enum):
-    RED = auto()
-    BLUE = auto()
-    GREEN = auto()
-    BLACK = auto()
-    YELLOW = auto()
+    RED = 0
+    BLUE = 1
+    GREEN = 2
+    BLACK = 3
+    YELLOW = 4

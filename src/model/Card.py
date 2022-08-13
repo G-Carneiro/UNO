@@ -1,7 +1,9 @@
-from typing import Optional, Union
+from __future__ import annotations
 
-from .Color import Color
+from typing import Optional
+
 from .CardType import CardType
+from .Color import Color
 
 
 class Card:
@@ -25,7 +27,7 @@ class Card:
     def get_value(self) -> Optional[int]:
         return self._value
 
-    def get_type(self) -> Union[CardType, int]:
+    def get_type(self) -> CardType:
         if self._is_reverse:
             return CardType.REVERSE
         elif self._is_block:
@@ -35,7 +37,7 @@ class Card:
         elif self._is_change_color:
             return CardType.CHANGE_COLOR
         else:
-            return self._value
+            return CardType.INT
 
     def is_buy_card(self) -> bool:
         return self._is_buy_card
@@ -62,9 +64,20 @@ class Card:
         else:
             out += str(self.get_type().name)
 
-        out += str(self._color.name)
+        if (self._color != Color.BLACK):
+            out += str(self._color.name)
 
         return out
 
     def __str__(self) -> str:
         return self.__repr__()
+
+    def __lt__(self, other: Card) -> bool:
+        if (self._color.name != other.get_color().name):
+            return (self._color.name < other.get_color().name)
+        elif (self.get_type() != other.get_type()):
+            return (self.get_type().value < other.get_type().value)
+        elif (self.get_type() == other.get_type() == CardType.INT):
+            return (self.get_value() < other.get_value())
+
+        return (other.get_value() is None)

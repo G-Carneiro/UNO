@@ -1,9 +1,10 @@
 from typing import List, Optional
+from uuid import uuid4
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, \
-    InlineQueryResultCachedSticker, Bot, InlineQueryResultCachedSticker, InputTextMessageContent
-from telegram.ext import CallbackContext, CommandHandler, Updater, InlineQueryHandler, ChosenInlineResultHandler, \
-    CallbackQueryHandler, run_async
+from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup,
+                      Bot, InlineQueryResultCachedSticker, InputTextMessageContent)
+from telegram.ext import (CallbackContext, CommandHandler, Updater,
+                          InlineQueryHandler, ChosenInlineResultHandler)
 
 from src.model.Card import Card
 from src.model.Player import Player
@@ -68,7 +69,7 @@ STICKERS = {
     'blockyellow': 'BQADBAADQwIAAl9XmQABO_AZKtxY6IMC',
     'reverseyellow': 'BQADBAADQQIAAl9XmQABZdQFahGG6UQC',
     '+4': 'BQADBAAD9QEAAl9XmQABVlkSNfhn76cC',
-    'colorchooser': 'BQADBAAD8wEAAl9XmQABl9rUOPqx4E4C',
+    'change_color': 'BQADBAAD8wEAAl9XmQABl9rUOPqx4E4C',
     'option_draw': 'BQADBAAD-AIAAl9XmQABxEjEcFM-VHIC',
     'option_pass': 'BQADBAAD-gIAAl9XmQABcEkAAbaZ4SicAg',
     'option_bluff': 'BQADBAADygIAAl9XmQABJoLfB9ntI2UC',
@@ -88,25 +89,40 @@ def create_game(update: Update, context: CallbackContext) -> None:
 def join_game(update: Update, context: CallbackContext) -> None:
     player_name: str = update.message.from_user.full_name
     player_id: int = update.message.from_user.id
-    message: str = f"{player_name} joined the game!"
     new_player: Player = Player(name=player_name, id_=player_id)
-    table.add_player(player=new_player)
+    if (new_player not in table.get_players()):
+        table.add_player(player=new_player)
+        message: str = f"{player_name} joined the game!"
+    else:
+        message = f"Already in game!"
+
+    # table.add_player(player=new_player)
+    # message: str = f"{player_name} joined the game!"
     send_message_to_all(update=update, message=message)
     return None
 
 
 def start_game(update: Update, callback: CallbackContext) -> None:
-    table.start_game()
-    chat = update.message.chat
     bot: Bot = update.message.bot
+    chat = update.message.chat
     global chat_id
     chat_id = chat.id
+
+    if (table is None):
+        bot.send_message(chat_id, text="First, create a game!")
+        return None
+    elif (len(table.get_players()) < 2):
+        bot.send_message(chat_id, text="Wait more players!")
+        return None
+
+    table.start_game()
     current_player: Player = table.current_player()
     message: str = f"Game started! \n" \
                    f"Current card is {table.current_card()}. \n" \
                    f"Players are {table.get_players()}. \n" \
                    f"First player is {current_player}. \n"
     # send_message_to_all(update=update, message=message)
+    bot.send_sticker(chat_id, sticker=STICKERS[str(table.current_card()).lower()])
     bot.send_message(chat_id, text=message, reply_markup=InlineKeyboardMarkup(make_choice()))
 
     return None
@@ -117,12 +133,36 @@ def make_choice() -> List[List[InlineKeyboardButton]]:
 
 
 def show_cards(update: Update, callback: CallbackContext) -> None:
-    print("hi")
     card_buttons = []
     current_player: Player = table.current_player()
-    for card in current_player.get_cards():
-        new_button = InlineQueryResultCachedSticker(str(card), sticker_file_id=STICKERS[str(card).lower()])
-        card_buttons.append(new_button)
+    user_id: int = update.inline_query.from_user.id
+    player: Player = table.get_player(user_id)
+    if (player is None):
+        return None
+    added_cards: List[str] = []
+    if (user_id == current_player.id()):
+        for card in sorted(player.get_cards()):
+            card_name: str = str(card).lower()
+            if (card_name in added_cards):
+                sticker_id: str = str(uuid4())
+                input_message = InputTextMessageContent(status())
+            else:
+                sticker_id = card_name
+                added_cards.append(card_name)
+                input_message = None
+
+            new_button = InlineQueryResultCachedSticker(sticker_id, sticker_file_id=STICKERS[card_name],
+                                                        input_message_content=input_message)
+            card_buttons.append(new_button)
+    else:
+        input_message = InputTextMessageContent(status())
+        for card in sorted(player.get_cards()):
+            card_name: str = str(card).lower()
+            sticker_id: str = str(uuid4())
+            new_sticker = InlineQueryResultCachedSticker(sticker_id, sticker_file_id=STICKERS[card_name],
+                                                         input_message_content=input_message)
+            card_buttons.append(new_sticker)
+
     # bot.send_message(chat.id, text="Make your choice!", reply_markup=card_buttons)
     updater.bot.answer_inline_query(update.inline_query.id, card_buttons)
     return None
@@ -142,6 +182,8 @@ def selected_card(update: Update, context: CallbackContext) -> None:
     inline_result = update.chosen_inline_result
     user = inline_result.from_user
     card_name: str = inline_result.result_id
+    if (card_name not in STICKERS.keys()):
+        return None
     sender_id: int = user.id
     if (current_player.id() == sender_id):
         card: Card = current_player.select_card(name=card_name)
@@ -159,14 +201,6 @@ def status() -> str:
                           f"Current player is {table.current_player()} \n" \
                           f"Next players {table.get_players()}."
     return current_status
-
-
-def reply_to_query():
-    pass
-
-
-def process_result():
-    pass
 
 
 dispatcher.add_handler(InlineQueryHandler(show_cards))

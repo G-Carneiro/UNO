@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List, Set, Optional
 
 from .Card import Card
@@ -46,9 +48,12 @@ class Player:
 
     def select_card(self, name: str) -> Optional[Card]:
         for card in self._cards:
-            if (name == str(card)):
+            if (name.lower() == str(card).lower()):
                 return card
         return None
 
     def __repr__(self) -> str:
         return self._name
+
+    def __eq__(self, other: Player) -> bool:
+        return (self._id == other.id())

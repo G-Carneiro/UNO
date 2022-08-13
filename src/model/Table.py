@@ -1,13 +1,12 @@
-from typing import List, Dict, Set, Union, Optional
 from random import choice, shuffle
+from typing import List, Dict, Set, Union, Optional
 
 from .Card import Card
-from .Color import Color
-from .Player import Player
 from .CardType import CardType
-from .Node import DoublyLinkedListNode as Node
+from .Color import Color
 from .DoublyCircularList import DoublyCircularList
-
+from .Node import DoublyLinkedListNode as Node
+from .Player import Player
 
 initial_cards_number: int = 7
 max_cards_to_block: int = 10
@@ -29,6 +28,12 @@ class Table:
 
     def get_players(self) -> List[Player]:
         return self._players_list
+
+    def get_player(self, player_id: int) -> Optional[Player]:
+        for player in self._players_list:
+            if (player.id() == player_id):
+                return player
+        return None
 
     def current_card(self) -> Card:
         return self._top_card
