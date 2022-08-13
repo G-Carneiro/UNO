@@ -102,7 +102,8 @@ class Table:
                 self._value_to_buy = 0
             else:
                 block = True
-        elif self._top_card.is_change_color():
+
+        if self._top_card.is_change_color():
             return False
 
         self._next_player(block=block)
