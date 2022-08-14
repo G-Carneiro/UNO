@@ -11,7 +11,7 @@ from src.model.Card import Card
 from src.model.Color import Color
 from src.model.Player import Player
 from src.model.Table import Table
-from src.utils.stickers import STICKERS, STICKERS_GREY
+from src.utils.stickers import COLORS, STICKERS, STICKERS_GREY
 
 updater: Updater = Updater("5354446808:AAEL1YJKk8Vjl7zbsU-RpX2q8f3G87eOjCA")
 dispatcher = updater.dispatcher
@@ -165,12 +165,10 @@ def status() -> str:
 
 def choose_color() -> List[InlineQueryResultArticle]:
     colors: List[InlineQueryResultArticle] = []
-    for color in Color:
-        if color != Color.BLACK:
-            color_name: str = color.name
-            new_article = InlineQueryResultArticle(id=color_name, title=f"Choose Color: {color_name}",
-                                                   input_message_content=InputTextMessageContent(color_name))
-            colors.append(new_article)
+    for color, symbol in COLORS.items():
+        new_article = InlineQueryResultArticle(id=color, title=f"{symbol} {color}",
+                                               input_message_content=InputTextMessageContent(color))
+        colors.append(new_article)
 
     return colors
 

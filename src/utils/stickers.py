@@ -115,3 +115,10 @@ STICKERS_GREY = {
     '+4': 'BQADBAADYQIAAl9XmQAB_HWlvZIscDEC',
     'change_color': 'BQADBAADXwIAAl9XmQABY_ksDdMex-wC'
 }
+
+COLORS = {
+    "RED": "🟥",
+    "BLUE": "🟦",
+    "GREEN": "🟩",
+    "YELLOW": "🟨"
+}
