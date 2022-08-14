@@ -8,10 +8,10 @@ from telegram.ext import (CallbackContext, CommandHandler, Updater,
                           InlineQueryHandler, ChosenInlineResultHandler)
 
 from src.model.Card import Card
-from src.model.Color import Color
+from src.model.Color import Color, COLORS
 from src.model.Player import Player
 from src.model.Table import Table
-from src.utils.stickers import COLORS, STICKERS, STICKERS_GREY
+from src.utils.stickers import STICKERS, STICKERS_GREY
 
 updater: Updater = Updater("5354446808:AAEL1YJKk8Vjl7zbsU-RpX2q8f3G87eOjCA")
 dispatcher = updater.dispatcher
@@ -58,10 +58,6 @@ def start_game(update: Update, callback: CallbackContext) -> None:
         return None
 
     table.start_game()
-    # for player in table.get_players():
-    #     print(f"{player}: {player.get_cards()}")
-
-    # send_message_to_all(update=update, message=message)
     bot.send_message(chat_id, text="Game started!")
     bot.send_sticker(chat_id, sticker=STICKERS[str(table.current_card()).lower()])
     bot.send_message(chat_id, text=status(), reply_markup=InlineKeyboardMarkup(make_choice()))
@@ -116,7 +112,6 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
                                                          input_message_content=input_message)
             card_buttons.append(new_sticker)
 
-    # bot.send_message(chat.id, text="Make your choice!", reply_markup=card_buttons)
     bot = callback.bot
     # dispatcher.run_async(bot.answer_inline_query, update.inline_query.id, card_buttons, cache_time=0)
     bot.answer_inline_query(update.inline_query.id, card_buttons, cache_time=0)
@@ -149,11 +144,8 @@ def selected_card(update: Update, context: CallbackContext) -> None:
             selected: Color = card_name
         else:
             selected: Card = current_player.select_card(name=card_name)
-        played: bool = table.turn(selected=selected)
-        # if (played or card_name == "option_draw"):
+        table.turn(selected=selected)
         bot = context.bot
-        # dispatcher.run_async(bot.send_message, chat_id, text=status(),
-        #                      reply_markup=InlineKeyboardMarkup(make_choice()))
         bot.send_message(chat_id, text=status(), reply_markup=InlineKeyboardMarkup(make_choice()))
 
     return None
@@ -165,9 +157,11 @@ def status() -> str:
 
 def choose_color() -> List[InlineQueryResultArticle]:
     colors: List[InlineQueryResultArticle] = []
-    for color, symbol in COLORS.items():
-        new_article = InlineQueryResultArticle(id=color, title=f"{symbol} {color}",
-                                               input_message_content=InputTextMessageContent(color))
+    for color in COLORS:
+        message: str = str(color)
+        num_cards: int = table.current_player().num_color_card(color)
+        new_article = InlineQueryResultArticle(id=color.name, title=f"{message} ({num_cards})",
+                                               input_message_content=InputTextMessageContent(message))
         colors.append(new_article)
 
     return colors

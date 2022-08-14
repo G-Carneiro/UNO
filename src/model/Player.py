@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List, Set, Optional
 
 from .Card import Card
+from .Color import Color
 
 
 class Player:
@@ -51,6 +52,18 @@ class Player:
             if (name.lower() == str(card).lower()):
                 return card
         return None
+
+    def num_cards(self) -> int:
+        return len(self._cards)
+
+    def num_color_card(self, color: Color) -> int:
+        # TODO: change this method to attr
+        num: int = 0
+        for card in self._cards:
+            if (card.get_color() == color):
+                num += 1
+
+        return num
 
     def __repr__(self) -> str:
         return self._name
