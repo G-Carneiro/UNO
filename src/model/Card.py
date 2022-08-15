@@ -9,6 +9,7 @@ from .Color import Color
 class Card:
     def __init__(self,
                  color: Color,
+                 type_: CardType,
                  value: Optional[int] = None,
                  is_buy_card: bool = False,
                  is_reverse: bool = False,
@@ -16,6 +17,7 @@ class Card:
                  is_change_color: bool = False) -> None:
         self._value: Optional[int] = value
         self._color: Color = color
+        self._type: CardType = type_
         self._is_change_color: bool = is_change_color
         self._is_buy_card: bool = is_buy_card
         self._is_reverse: bool = is_reverse
@@ -28,16 +30,7 @@ class Card:
         return self._value
 
     def get_type(self) -> CardType:
-        if self._is_reverse:
-            return CardType.REVERSE
-        elif self._is_block:
-            return CardType.BLOCK
-        elif self.is_buy_card():
-            return CardType.BUY
-        elif self._is_change_color:
-            return CardType.CHANGE_COLOR
-        else:
-            return CardType.INT
+        return self._type
 
     def is_buy_card(self) -> bool:
         return self._is_buy_card
@@ -77,7 +70,5 @@ class Card:
             return (self._color.name < other.get_color().name)
         elif (self.get_type() != other.get_type()):
             return (self.get_type().value < other.get_type().value)
-        elif (self.get_type() == other.get_type() == CardType.INT):
-            return (self.get_value() < other.get_value())
 
         return (other.get_value() is None)

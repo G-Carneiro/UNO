@@ -3,7 +3,7 @@ from typing import List, Dict, Set, Union, Optional
 
 from .Card import Card
 from .CardType import CardType
-from .Color import Color
+from .Color import BLACK, Color, COLORS
 from .DoublyCircularList import DoublyCircularList
 from .Node import DoublyLinkedListNode as Node
 from .Player import Player
@@ -118,43 +118,39 @@ class Table:
         self._deck: List[Card] = []
         self._deck_by_key: Dict[Union[Color, CardType, int], List[Card]] = {}
 
-        for value in range(10):
-            self._deck_by_key[value] = []
-
         for color in Color:
             self._deck_by_key[color] = []
 
         for card_type in CardType:
             self._deck_by_key[card_type] = []
 
-        black: Color = Color.BLACK
-        usual_colors: List[Color] = [color for color in Color if color != black]
-
-        for color in usual_colors:
+        for color in COLORS:
             for value in range(10):
-                card = Card(value=value, color=color)
+                card_type: CardType = CardType(value=value)
+                card = Card(value=value, color=color, type_=card_type)
                 self._deck_by_key[color].append(card)
-                self._deck_by_key[value].append(card)
+                self._deck_by_key[card_type].append(card)
                 self._deck.append(card)
 
-            plus_two: Card = Card(value=2, color=color, is_buy_card=True)
+            plus_two: Card = Card(value=2, color=color, is_buy_card=True, type_=CardType.BUY)
             self._deck_by_key[CardType.BUY].append(plus_two)
 
-            block: Card = Card(color=color, is_block=True)
+            block: Card = Card(color=color, is_block=True, type_=CardType.BLOCK)
             self._deck_by_key[CardType.BLOCK].append(block)
 
-            reverse: Card = Card(color=color, is_reverse=True)
+            reverse: Card = Card(color=color, is_reverse=True, type_=CardType.REVERSE)
             self._deck_by_key[CardType.REVERSE].append(reverse)
 
             self._deck_by_key[color] += [plus_two, block, reverse]
             self._deck += [plus_two, block, reverse]
 
-        plus_four: Card = Card(value=4, color=black, is_buy_card=True, is_change_color=True)
+        plus_four: Card = Card(value=4, color=BLACK, is_buy_card=True, is_change_color=True,
+                               type_=CardType.PLUS_FOUR)
         self._deck_by_key[CardType.BUY].append(plus_four)
 
-        change_color: Card = Card(color=black, is_change_color=True)
+        change_color: Card = Card(color=BLACK, is_change_color=True, type_=CardType.CHANGE_COLOR)
 
-        self._deck_by_key[black] += [plus_four, change_color]
+        self._deck_by_key[BLACK] += [plus_four, change_color]
         self._deck_by_key[CardType.CHANGE_COLOR] += [plus_four, change_color]
         self._deck += [plus_four, plus_four, change_color, change_color]
 
@@ -195,11 +191,7 @@ class Table:
             if ((block_buy_cards) and (self._value_to_buy <= max_cards_to_block)):
                 allowed_cards |= set(self._deck_by_key[CardType.BLOCK])
         else:
-            # FIXME:
-            if (self._top_card.get_type() == CardType.INT):
-                allowed_cards |= set(self._deck_by_key[self._top_card.get_value()])
-            else:
-                allowed_cards |= set(self._deck_by_key[self._top_card.get_type()])
+            allowed_cards |= set(self._deck_by_key[self._top_card.get_type()])
             allowed_cards |= set(self._deck_by_key[self._top_card.get_color()])
             allowed_cards |= set(self._deck_by_key[Color.BLACK])
             if (self._top_card.is_change_color()):
