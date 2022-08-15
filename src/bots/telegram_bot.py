@@ -143,7 +143,11 @@ def selected_card(update: Update, context: CallbackContext) -> None:
             selected: Card = current_player.select_card(name=card_name)
         table.turn(selected=selected)
         bot = context.bot
-        bot.send_message(chat_id, text=status(), reply_markup=InlineKeyboardMarkup(make_choice()))
+        if (table.terminated()):
+            bot.send_message(chat_id, text=f"Game ended, {table.current_player()} won!")
+        else:
+            bot.send_message(chat_id, text=status(),
+                             reply_markup=InlineKeyboardMarkup(make_choice()))
 
     return None
 

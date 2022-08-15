@@ -30,7 +30,10 @@ class Player:
         return None
 
     def winner(self) -> bool:
-        return (not len(self._cards))
+        return (not self.num_cards())
+
+    def uno(self) -> bool:
+        return (self.num_cards() == 1)
 
     def have_allowed_card(self, allowed_cards: Set[Card]) -> bool:
         for card in self._cards:

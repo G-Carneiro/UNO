@@ -5,6 +5,7 @@ from .Card import Card
 from .CardType import CardType
 from .Color import BLACK, Color, COLORS
 from .DoublyCircularList import DoublyCircularList
+from .GameState import GameState
 from .Node import DoublyLinkedListNode as Node
 from .Player import Player
 
@@ -14,6 +15,7 @@ block_buy_cards: bool = True
 reverse_buy_cards: bool = True
 buy_until_have_card: bool = True
 play_before_buy: bool = False
+min_players: int = 2
 
 
 class Table:
@@ -23,11 +25,18 @@ class Table:
         self._actual_player_node: Optional[Node] = None
         self._value_to_buy: int = 0
         self._reverse: bool = False
-        self._num_players: int = 0
+        self._state: GameState = GameState.CREATED
         self._set_deck()
 
     def get_players(self) -> List[Player]:
         return self._players_list
+
+    @property
+    def state(self) -> GameState:
+        return self._state
+
+    def num_players(self) -> int:
+        return len(self._players_list)
 
     def get_player(self, player_id: int) -> Optional[Player]:
         for player in self._players_list:
@@ -40,14 +49,23 @@ class Table:
 
     def add_player(self, player: Player) -> None:
         self._players_list.append(player)
+        if (self.num_players() >= min_players):
+            self._state = GameState.READY
+
         return None
 
     def remove_player(self, player: Player) -> None:
         self._players_list.remove(player)
+        if (self.num_players() < min_players):
+            self._state = GameState.WAITING
+
         return None
 
     def start_game(self) -> None:
-        self._num_players = len(self._players_list)
+        if (self._state != GameState.READY):
+            # TODO: raise exception
+            return None
+
         shuffle(self._players_list)
 
         if (not self._players.empty()):
@@ -104,6 +122,7 @@ class Table:
                 block = True
 
         if self._top_card.is_change_color():
+            self._state = GameState.CHOOSING
             return None
 
         self._next_player(block=block)
@@ -169,7 +188,11 @@ class Table:
 
         return None
 
-    def _next_player(self, block: bool = False) -> Player:
+    def _next_player(self, block: bool = False) -> None:
+        if (self.current_player().winner()):
+            self._state = GameState.TERMINATED
+            return None
+
         if (self._reverse):
             self._actual_player_node = self._actual_player_node.previous()
             if (block):
@@ -179,7 +202,7 @@ class Table:
             if (block):
                 self._actual_player_node = self._actual_player_node.next()
 
-        return (self._actual_player_node.data())
+        return None
 
     def allowed_cards(self) -> Set[Card]:
         allowed_cards: Set[Card] = set()
@@ -200,6 +223,7 @@ class Table:
 
     def _set_color(self, color: Color = None) -> None:
         self._color = color
+        self._state = GameState.RUNNING
         return None
 
     def status(self) -> str:
@@ -209,9 +233,9 @@ class Table:
             next_player = self._actual_player_node.next()
 
         status: str = f"To draw: {self._value_to_buy} \n" \
-                      f"Current card: {self._top_card} \n" \
+                      f"Current card: {self._top_card}{self._top_card.get_color().value} \n" \
                       f"Current player: {self.current_player()} ({self.current_player().num_cards()}) \n" \
-                      f"Next players: {next_player.data()} ({len(next_player.data().get_cards())})"
+                      f"Next players: {next_player.data()} ({next_player.data().num_cards()})"
 
         while True:
             if (self._reverse):
@@ -220,14 +244,17 @@ class Table:
                 next_player = next_player.next()
 
             if (next_player != self._actual_player_node):
-                status += f" → {next_player.data()} ({len(next_player.data().get_cards())})"
+                status += f" → {next_player.data()} ({next_player.data().num_cards()})"
             else:
                 break
 
         return status
 
     def choosing_color(self) -> bool:
-        return (self._top_card.is_change_color() and self._color is None)
+        return (self._state == GameState.CHOOSING)
+
+    def terminated(self) -> bool:
+        return (self._state == GameState.TERMINATED)
 
     def __repr__(self) -> str:
         return str(self._players_list)
