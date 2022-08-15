@@ -132,23 +132,22 @@ class Table:
                 self._deck_by_key[card_type].append(card)
                 self._deck.append(card)
 
-            plus_two: Card = Card(value=2, color=color, is_buy_card=True, type_=CardType.BUY)
+            plus_two: Card = Card(value=2, color=color, type_=CardType.BUY)
             self._deck_by_key[CardType.BUY].append(plus_two)
 
-            block: Card = Card(color=color, is_block=True, type_=CardType.BLOCK)
+            block: Card = Card(color=color, type_=CardType.BLOCK)
             self._deck_by_key[CardType.BLOCK].append(block)
 
-            reverse: Card = Card(color=color, is_reverse=True, type_=CardType.REVERSE)
+            reverse: Card = Card(color=color, type_=CardType.REVERSE)
             self._deck_by_key[CardType.REVERSE].append(reverse)
 
             self._deck_by_key[color] += [plus_two, block, reverse]
             self._deck += [plus_two, block, reverse]
 
-        plus_four: Card = Card(value=4, color=BLACK, is_buy_card=True, is_change_color=True,
-                               type_=CardType.PLUS_FOUR)
+        plus_four: Card = Card(value=4, color=BLACK, type_=CardType.PLUS_FOUR)
         self._deck_by_key[CardType.BUY].append(plus_four)
 
-        change_color: Card = Card(color=BLACK, is_change_color=True, type_=CardType.CHANGE_COLOR)
+        change_color: Card = Card(color=BLACK, type_=CardType.CHANGE_COLOR)
 
         self._deck_by_key[BLACK] += [plus_four, change_color]
         self._deck_by_key[CardType.CHANGE_COLOR] += [plus_four, change_color]

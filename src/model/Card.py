@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from .CardType import CardType
-from .Color import Color
+from .CardType import CardType, INT
+from .Color import Color, BLACK
 
 
 class Card:
@@ -11,17 +11,10 @@ class Card:
                  color: Color,
                  type_: CardType,
                  value: Optional[int] = None,
-                 is_buy_card: bool = False,
-                 is_reverse: bool = False,
-                 is_block: bool = False,
-                 is_change_color: bool = False) -> None:
+                 ) -> None:
         self._value: Optional[int] = value
         self._color: Color = color
         self._type: CardType = type_
-        self._is_change_color: bool = is_change_color
-        self._is_buy_card: bool = is_buy_card
-        self._is_reverse: bool = is_reverse
-        self._is_block: bool = is_block
 
     def get_color(self) -> Color:
         return self._color
@@ -33,23 +26,23 @@ class Card:
         return self._type
 
     def is_buy_card(self) -> bool:
-        return self._is_buy_card
+        return (self._type == CardType.BUY or self._type == CardType.PLUS_FOUR)
 
     def is_reverse(self) -> bool:
-        return self._is_reverse
+        return (self._type == CardType.REVERSE)
 
     def is_block(self) -> bool:
-        return self._is_block
+        return (self._type == CardType.BLOCK)
 
     def is_change_color(self) -> bool:
-        return self._is_change_color
+        return (self._color == BLACK)
 
     def is_special(self) -> bool:
-        return (self._is_buy_card or self._is_reverse or self._is_block or self._is_change_color)
+        return (self._type not in INT)
 
     def __repr__(self) -> str:
         out: str = ""
-        if self._is_buy_card:
+        if self.is_buy_card():
             out += "+"
 
         if isinstance(self._value, int):
@@ -57,7 +50,7 @@ class Card:
         else:
             out += str(self.get_type().name)
 
-        if (self._color != Color.BLACK):
+        if (self._color != BLACK):
             out += str(self._color.name)
 
         return out
