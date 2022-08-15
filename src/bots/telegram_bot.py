@@ -120,10 +120,7 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
 
 def send_message_to_all(update: Update, message: str,
                         reply_markup: InlineKeyboardMarkup = None) -> None:
-    if reply_markup is None:
-        update.message.reply_text(message)
-    else:
-        update.message.reply_text(message, reply_markup=reply_markup)
+    update.message.reply_text(message, reply_markup=reply_markup)
     return None
 
 

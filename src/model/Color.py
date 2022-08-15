@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum
 from typing import List
 
@@ -11,6 +13,9 @@ class Color(Enum):
 
     def __str__(self) -> str:
         return f"{self.value} {self.name}"
+
+    def __lt__(self, other: Color) -> bool:
+        return (self.name < other.name)
 
 
 BLACK: Color = Color.BLACK

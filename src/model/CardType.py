@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum
 from typing import List
 
@@ -18,6 +20,9 @@ class CardType(Enum):
     REVERSE = 12
     CHANGE_COLOR = 13
     PLUS_FOUR = 14
+
+    def __lt__(self, other: CardType) -> bool:
+        return (self.value < other.value)
 
 
 INT: List[CardType] = [CardType(i) for i in range(10)]

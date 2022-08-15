@@ -59,9 +59,7 @@ class Card:
         return self.__repr__()
 
     def __lt__(self, other: Card) -> bool:
-        if (self._color.name != other.get_color().name):
-            return (self._color.name < other.get_color().name)
-        elif (self.get_type() != other.get_type()):
-            return (self.get_type().value < other.get_type().value)
+        if (self._color != other.get_color()):
+            return (self._color < other.get_color())
 
-        return (other.get_value() is None)
+        return (self.get_type() < other.get_type())
