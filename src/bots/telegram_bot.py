@@ -29,7 +29,7 @@ def create_game(update: Update, context: CallbackContext) -> None:
 
 
 def join_game(update: Update, context: CallbackContext) -> None:
-    player_name: str = update.message.from_user.full_name
+    player_name: str = update.message.from_user.first_name
     player_id: int = update.message.from_user.id
     new_player: Player = Player(name=player_name, id_=player_id)
     if (new_player not in table.get_players()):
@@ -168,6 +168,7 @@ def choose_color() -> List[InlineQueryResultArticle]:
     return colors
 
 
+# TODO: mark actual player in chat
 dispatcher.add_handler(InlineQueryHandler(show_cards))
 dispatcher.add_handler(ChosenInlineResultHandler(selected_card, pass_job_queue=True))
 # dispatcher.add_handler(CallbackQueryHandler(show_cards))

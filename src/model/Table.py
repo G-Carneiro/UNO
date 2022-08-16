@@ -52,12 +52,21 @@ class Table:
         if (self.num_players() >= min_players):
             self._state = GameState.READY
 
+        if (self._state == GameState.RUNNING):
+            self._players.push_back(data=player)
+
         return None
 
     def remove_player(self, player: Player) -> None:
         self._players_list.remove(player)
         if (self.num_players() < min_players):
             self._state = GameState.WAITING
+
+        if (self._state == GameState.RUNNING):
+            if (player == self.current_player()):
+                self._next_player()
+
+            self._players.remove(data=player)
 
         return None
 
