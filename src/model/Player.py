@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import List, Set, Optional
+from typing import List, Set, Optional, Dict
 
 from .Card import Card
-from .Color import Color
+from .Color import Color, BLACK, COLORS
 from ..utils.settings import WIN_WITH_BLACK
 
 
@@ -12,6 +12,7 @@ class Player:
         self._name: str = name
         self._id: int = id_
         self._cards: List[Card] = []
+        self._num_color_cards: Dict[Color, int] = {color: 0 for color in Color}
 
     def id(self) -> int:
         return self._id
@@ -24,10 +25,17 @@ class Player:
 
     def put_card(self, card: Card) -> None:
         self._cards.remove(card)
+        self._num_color_cards[card.get_color()] -= 1
         return None
 
     def draw_card(self, card: Card) -> None:
-        self._cards.append(card)
+        index: int = self.num_cards()
+        for i in range(self.num_cards()):
+            if (card < self._cards[i]):
+                index = i
+                break
+        self._cards.insert(index, card)
+        self._num_color_cards[card.get_color()] += 1
         return None
 
     def winner(self) -> bool:
@@ -48,9 +56,9 @@ class Player:
     def not_have_playable_card(self, playable_cards: Set[Card]) -> bool:
         return (not self.have_playable_card(playable_cards=playable_cards))
 
-    def put_playable_card(self, allowed_cards: Set[Card]) -> Optional[Card]:
+    def put_playable_card(self, playable_cards: Set[Card]) -> Optional[Card]:
         for card in self._cards:
-            if card in allowed_cards:
+            if card in playable_cards:
                 self.put_card(card)
                 return card
 
@@ -66,13 +74,7 @@ class Player:
         return len(self._cards)
 
     def num_color_card(self, color: Color) -> int:
-        # TODO: change this method to attr
-        num: int = 0
-        for card in self._cards:
-            if (card.get_color() == color):
-                num += 1
-
-        return num
+        return self._num_color_cards[color]
 
     def __repr__(self) -> str:
         return self._name

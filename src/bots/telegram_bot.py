@@ -104,7 +104,7 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
 
 def _gen_sticker_cards(card_buttons: List[Sticker], player: Player, playable_cards: Set[Card]) -> None:
     added_cards: List[str] = []
-    for card in sorted(player.get_cards()):
+    for card in player.get_cards():
         card_name: str = str(card).lower()
         if (card_name in added_cards) or (card not in playable_cards):
             sticker_id: str = str(uuid4())
@@ -124,7 +124,7 @@ def _gen_sticker_cards(card_buttons: List[Sticker], player: Player, playable_car
 
 def _disable_all_cards(card_buttons: List[Sticker], player: Player) -> None:
     input_message = InputTextMessageContent(status())
-    for card in sorted(player.get_cards()):
+    for card in player.get_cards():
         card_name: str = str(card).lower()
         sticker_id: str = str(uuid4())
         sticker = STICKERS_GREY[card_name]

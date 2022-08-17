@@ -112,6 +112,8 @@ class Table:
 
                     if PASS_AFTER_DRAW:
                         self._next_player()
+            else:
+                return None
         else:
             self._play_card(card=selected)
 
@@ -236,7 +238,7 @@ class Table:
             playable_cards |= set(self._deck_by_key[self._top_card.get_type()])
             playable_cards |= set(self._deck_by_key[self._top_card.get_color()])
             playable_cards |= set(self._deck_by_key[BLACK])
-            if (self._top_card.is_change_color()):
+            if (self._top_card.is_change_color() and self.running()):
                 playable_cards |= set(self._deck_by_key[self._color])
 
         self._playable_cards = playable_cards
