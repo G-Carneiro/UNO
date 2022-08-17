@@ -104,11 +104,11 @@ class Table:
                         self._next_player()
                 else:
                     card: Card = self.get_random_card()
-                    current_player.buy_card(card)
+                    current_player.draw_card(card)
                     if DRAW_WHILE_NO_CARD:
                         while card not in playable_cards:
                             card: Card = self.get_random_card()
-                            current_player.buy_card(card)
+                            current_player.draw_card(card)
 
                     if PASS_AFTER_DRAW:
                         self._next_player()
@@ -146,7 +146,7 @@ class Table:
 
     def _give_cards_to_player(self, player: Player, num_cards: int = 1) -> None:
         for _ in range(num_cards):
-            player.buy_card(self.get_random_card())
+            player.draw_card(self.get_random_card())
         return None
 
     def _set_deck(self) -> None:

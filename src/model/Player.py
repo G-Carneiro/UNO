@@ -25,7 +25,7 @@ class Player:
         self._cards.remove(card)
         return None
 
-    def buy_card(self, card: Card) -> None:
+    def draw_card(self, card: Card) -> None:
         self._cards.append(card)
         return None
 
