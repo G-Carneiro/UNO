@@ -40,6 +40,9 @@ class Card:
     def is_special(self) -> bool:
         return (self._type not in INT)
 
+    def is_black(self) -> bool:
+        return (self._color == BLACK)
+
     def __repr__(self) -> str:
         out: str = ""
         if self.is_buy_card():

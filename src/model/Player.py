@@ -4,6 +4,7 @@ from typing import List, Set, Optional
 
 from .Card import Card
 from .Color import Color
+from ..utils.settings import WIN_WITH_BLACK
 
 
 class Player:
@@ -36,6 +37,8 @@ class Player:
         return (self.num_cards() == 1)
 
     def have_playable_card(self, playable_cards: Set[Card]) -> bool:
+        if (not WIN_WITH_BLACK and self.uno() and self._cards[0].is_black()):
+            return False
         for card in self._cards:
             if card in playable_cards:
                 return True
