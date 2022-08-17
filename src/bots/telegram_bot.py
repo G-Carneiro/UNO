@@ -1,9 +1,9 @@
-from typing import List, Optional
+from typing import List, Optional, Set
 from uuid import uuid4
 
 from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup,
-                      Bot, InlineQueryResultCachedSticker, InputTextMessageContent,
-                      InlineQueryResultArticle)
+                      Bot, InlineQueryResultCachedSticker as Sticker,
+                      InputTextMessageContent, InlineQueryResultArticle)
 from telegram.ext import (CallbackContext, CommandHandler, Updater,
                           InlineQueryHandler, ChosenInlineResultHandler)
 
@@ -79,7 +79,7 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
     player: Player = table.get_player(user_id)
     if (player is None):
         return None
-    added_cards: List[str] = []
+
     if (table.choosing_color()) and (user_id == current_player.id()):
         card_buttons = choose_color()
     elif (user_id == current_player.id()):
@@ -87,37 +87,51 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
         if (not current_player.have_allowed_card(allowed_cards=playable_cards)):
             sticker_id = "option_draw"
             sticker = STICKERS[sticker_id]
-            new_button = InlineQueryResultCachedSticker(sticker_id, sticker_file_id=sticker)
+            new_button = Sticker(sticker_id, sticker_file_id=sticker)
             card_buttons.append(new_button)
-
-        for card in sorted(current_player.get_cards()):
-            card_name: str = str(card).lower()
-            if (card_name in added_cards) or (card not in playable_cards):
-                sticker_id: str = str(uuid4())
-                sticker = STICKERS_GREY[card_name]
-                input_message = InputTextMessageContent(status())
-            else:
-                sticker_id = card_name
-                sticker = STICKERS[card_name]
-                added_cards.append(card_name)
-                input_message = None
-
-            new_button = InlineQueryResultCachedSticker(sticker_id, sticker_file_id=sticker,
-                                                        input_message_content=input_message)
-            card_buttons.append(new_button)
+            _disable_all_cards(card_buttons=card_buttons, player=current_player)
+        else:
+            _gen_sticker_cards(card_buttons=card_buttons, player=current_player,
+                               playable_cards=playable_cards)
     else:
-        input_message = InputTextMessageContent(status())
-        for card in sorted(player.get_cards()):
-            card_name: str = str(card).lower()
-            sticker_id: str = str(uuid4())
-            sticker = STICKERS_GREY[card_name]
-            new_sticker = InlineQueryResultCachedSticker(sticker_id, sticker_file_id=sticker,
-                                                         input_message_content=input_message)
-            card_buttons.append(new_sticker)
+        _disable_all_cards(card_buttons=card_buttons, player=player)
 
     bot = callback.bot
     # dispatcher.run_async(bot.answer_inline_query, update.inline_query.id, card_buttons, cache_time=0)
     bot.answer_inline_query(update.inline_query.id, card_buttons, cache_time=0)
+    return None
+
+
+def _gen_sticker_cards(card_buttons: List[Sticker], player: Player, playable_cards: Set[Card]) -> None:
+    added_cards: List[str] = []
+    for card in sorted(player.get_cards()):
+        card_name: str = str(card).lower()
+        if (card_name in added_cards) or (card not in playable_cards):
+            sticker_id: str = str(uuid4())
+            sticker = STICKERS_GREY[card_name]
+            input_message = InputTextMessageContent(status())
+        else:
+            sticker_id = card_name
+            sticker = STICKERS[card_name]
+            added_cards.append(card_name)
+            input_message = None
+
+        new_button = Sticker(sticker_id, sticker_file_id=sticker,
+                             input_message_content=input_message)
+        card_buttons.append(new_button)
+    return None
+
+
+def _disable_all_cards(card_buttons: List[Sticker], player: Player) -> None:
+    input_message = InputTextMessageContent(status())
+    for card in sorted(player.get_cards()):
+        card_name: str = str(card).lower()
+        sticker_id: str = str(uuid4())
+        sticker = STICKERS_GREY[card_name]
+        new_sticker = Sticker(sticker_id, sticker_file_id=sticker,
+                              input_message_content=input_message)
+        card_buttons.append(new_sticker)
+
     return None
 
 
