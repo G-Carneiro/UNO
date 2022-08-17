@@ -84,7 +84,7 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
         card_buttons = choose_color()
     elif (user_id == current_player.id()):
         playable_cards = table.playable_cards
-        if (not current_player.have_allowed_card(allowed_cards=playable_cards)):
+        if (current_player.not_have_playable_card(playable_cards=playable_cards)):
             sticker_id = "option_draw"
             sticker = STICKERS[sticker_id]
             new_button = Sticker(sticker_id, sticker_file_id=sticker)

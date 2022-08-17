@@ -96,7 +96,7 @@ class Table:
         current_player: Player = self.current_player()
         playable_cards = self.playable_cards
         if (selected not in playable_cards):
-            if (not current_player.have_allowed_card(playable_cards)):
+            if (current_player.not_have_playable_card(playable_cards=playable_cards)):
                 if (self._value_to_buy):
                     self._give_cards_to_player(current_player, self._value_to_buy)
                     self._value_to_buy = 0

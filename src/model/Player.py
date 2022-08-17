@@ -35,14 +35,17 @@ class Player:
     def uno(self) -> bool:
         return (self.num_cards() == 1)
 
-    def have_allowed_card(self, allowed_cards: Set[Card]) -> bool:
+    def have_playable_card(self, playable_cards: Set[Card]) -> bool:
         for card in self._cards:
-            if card in allowed_cards:
+            if card in playable_cards:
                 return True
 
         return False
 
-    def put_allowed_card(self, allowed_cards: Set[Card]) -> Optional[Card]:
+    def not_have_playable_card(self, playable_cards: Set[Card]) -> bool:
+        return (not self.have_playable_card(playable_cards=playable_cards))
+
+    def put_playable_card(self, allowed_cards: Set[Card]) -> Optional[Card]:
         for card in self._cards:
             if card in allowed_cards:
                 self.put_card(card)
