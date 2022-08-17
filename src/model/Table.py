@@ -17,7 +17,6 @@ class Table:
     def __init__(self) -> None:
         self._players_list: List[Player] = []
         self._players: DoublyCircularList = DoublyCircularList()
-        self._actual_player_node: Optional[Node] = None
         self._value_to_buy: int = 0
         self._reverse: bool = False
         self._state: GameState = GameState.CREATED
@@ -73,14 +72,13 @@ class Table:
 
         shuffle(self._players_list)
 
-        if (not self._players.empty()):
+        if (self._players.not_empty()):
             self._players.clear()
 
         for player in self._players_list:
             self._give_cards_to_player(player, num_cards=INITIAL_CARDS_NUMBER)
 
         self._players.insert_values(self._players_list)
-        self._actual_player_node = self._players.head()
         self._set_initial_top_card()
         self._compute_playable_cards()
 
@@ -119,7 +117,10 @@ class Table:
         return None
 
     def current_player(self) -> Player:
-        return self._actual_player_node.data()
+        return self._players.head.data()
+
+    def _current_node(self) -> Node:
+        return self._players.head
 
     def _play_card(self, card: Card) -> None:
         self._set_color()
@@ -211,13 +212,13 @@ class Table:
         self._compute_playable_cards()
 
         if (self._reverse):
-            self._actual_player_node = self._actual_player_node.previous()
+            self._players.head_to_previous()
             if (block):
-                self._actual_player_node = self._actual_player_node.previous()
+                self._players.head_to_previous()
         else:
-            self._actual_player_node = self._actual_player_node.next()
+            self._players.head_to_next()
             if (block):
-                self._actual_player_node = self._actual_player_node.next()
+                self._players.head_to_next()
 
         return None
 
@@ -250,9 +251,9 @@ class Table:
 
     def status(self) -> str:
         if (self._reverse):
-            next_player: Node = self._actual_player_node.previous()
+            next_player: Node = self._current_node().previous()
         else:
-            next_player = self._actual_player_node.next()
+            next_player = self._current_node().next()
 
         status: str = f"To draw: {self._value_to_buy} \n" \
                       f"Current card: {self._top_card}{self._top_card.get_color().value} \n" \
@@ -265,7 +266,7 @@ class Table:
             else:
                 next_player = next_player.next()
 
-            if (next_player != self._actual_player_node):
+            if (next_player != self._current_node()):
                 status += f" → {next_player.data()} ({next_player.data().num_cards()})"
             else:
                 break

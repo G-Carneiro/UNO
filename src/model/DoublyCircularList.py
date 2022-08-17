@@ -11,14 +11,29 @@ class DoublyCircularList:
         if start_list:
             self.insert_values(values=start_list)
 
+    @property
     def head(self) -> Optional[Node]:
         return self._head
 
+    @property
     def size(self) -> int:
         return self._size
 
     def empty(self) -> bool:
         return (self._size == 0)
+
+    def not_empty(self) -> bool:
+        return (not self.empty())
+
+    def head_to_next(self) -> None:
+        if (self.not_empty() and self._head.next()):
+            self._head = self._head.next()
+        return None
+
+    def head_to_previous(self) -> None:
+        if (self.not_empty() and self._head.previous()):
+            self._head = self._head.previous()
+        return None
 
     def push_back(self, data: T) -> None:
         if self.empty():
