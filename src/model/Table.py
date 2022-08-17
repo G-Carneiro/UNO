@@ -8,14 +8,9 @@ from .DoublyCircularList import DoublyCircularList
 from .GameState import GameState
 from .Node import DoublyLinkedListNode as Node
 from .Player import Player
-
-initial_cards_number: int = 7
-max_cards_to_block: int = 10
-block_buy_cards: bool = True
-reverse_buy_cards: bool = True
-buy_until_have_card: bool = True
-play_before_buy: bool = False
-min_players: int = 2
+from ..utils.settings import (BLOCK_DRAW, DRAW_WHILE_NO_CARD, INITIAL_CARDS_NUMBER,
+                              MAX_TO_BLOCK, MAX_TO_REVERSE, MIN_PLAYERS, PASS_AFTER_DRAW,
+                              PASS_AFTER_FORCED_DRAW, REVERSE_DRAW)
 
 
 class Table:
@@ -26,6 +21,7 @@ class Table:
         self._value_to_buy: int = 0
         self._reverse: bool = False
         self._state: GameState = GameState.CREATED
+        self._playable_cards: Set[Card] = set()
         self._set_deck()
 
     def get_players(self) -> List[Player]:
@@ -49,7 +45,7 @@ class Table:
 
     def add_player(self, player: Player) -> None:
         self._players_list.append(player)
-        if (self.num_players() >= min_players):
+        if (self.num_players() >= MIN_PLAYERS):
             self._state = GameState.READY
 
         if (self._state == GameState.RUNNING):
@@ -59,7 +55,7 @@ class Table:
 
     def remove_player(self, player: Player) -> None:
         self._players_list.remove(player)
-        if (self.num_players() < min_players):
+        if (self.num_players() < MIN_PLAYERS):
             self._state = GameState.WAITING
 
         if (self._state == GameState.RUNNING):
@@ -81,11 +77,12 @@ class Table:
             self._players.clear()
 
         for player in self._players_list:
-            self._give_cards_to_player(player, num_cards=initial_cards_number)
+            self._give_cards_to_player(player, num_cards=INITIAL_CARDS_NUMBER)
 
         self._players.insert_values(self._players_list)
         self._actual_player_node = self._players.head()
         self._set_initial_top_card()
+        self._compute_playable_cards()
 
         return None
 
@@ -93,22 +90,32 @@ class Table:
         if isinstance(selected, Color):
             self._set_color(color=selected)
             self._next_player()
+            self._compute_playable_cards()
             return None
 
         current_player: Player = self.current_player()
-        allowed_cards = self.allowed_cards()
-        if (selected not in allowed_cards):
-            if (not current_player.have_allowed_card(allowed_cards)):
+        playable_cards = self.playable_cards
+        if (selected not in playable_cards):
+            if (not current_player.have_allowed_card(playable_cards)):
                 if (self._value_to_buy):
                     self._give_cards_to_player(current_player, self._value_to_buy)
                     self._value_to_buy = 0
+                    if PASS_AFTER_FORCED_DRAW:
+                        self._next_player()
                 else:
-                    while selected not in allowed_cards:
-                        selected: Card = self.get_random_card()
-                        current_player.buy_card(selected)
-            return None
+                    card: Card = self.get_random_card()
+                    current_player.buy_card(card)
+                    if DRAW_WHILE_NO_CARD:
+                        while card not in playable_cards:
+                            card: Card = self.get_random_card()
+                            current_player.buy_card(card)
 
-        self._play_card(card=selected)
+                    if PASS_AFTER_DRAW:
+                        self._next_player()
+        else:
+            self._play_card(card=selected)
+
+        self._compute_playable_cards()
 
         return None
 
@@ -213,22 +220,27 @@ class Table:
 
         return None
 
-    def allowed_cards(self) -> Set[Card]:
-        allowed_cards: Set[Card] = set()
-        if (self._value_to_buy):
-            allowed_cards |= set(self._deck_by_key[CardType.BUY])
-            if (reverse_buy_cards):
-                allowed_cards |= set(self._deck_by_key[CardType.REVERSE])
-            if ((block_buy_cards) and (self._value_to_buy <= max_cards_to_block)):
-                allowed_cards |= set(self._deck_by_key[CardType.BLOCK])
-        else:
-            allowed_cards |= set(self._deck_by_key[self._top_card.get_type()])
-            allowed_cards |= set(self._deck_by_key[self._top_card.get_color()])
-            allowed_cards |= set(self._deck_by_key[Color.BLACK])
-            if (self._top_card.is_change_color()):
-                allowed_cards |= set(self._deck_by_key[self._color])
+    @property
+    def playable_cards(self) -> Set[Card]:
+        return self._playable_cards
 
-        return allowed_cards
+    def _compute_playable_cards(self) -> None:
+        playable_cards: Set[Card] = set()
+        if (self._value_to_buy):
+            playable_cards |= set(self._deck_by_key[CardType.BUY])
+            if ((REVERSE_DRAW) and (self._value_to_buy <= MAX_TO_REVERSE)):
+                playable_cards |= set(self._deck_by_key[CardType.REVERSE])
+            if ((BLOCK_DRAW) and (self._value_to_buy <= MAX_TO_BLOCK)):
+                playable_cards |= set(self._deck_by_key[CardType.BLOCK])
+        else:
+            playable_cards |= set(self._deck_by_key[self._top_card.get_type()])
+            playable_cards |= set(self._deck_by_key[self._top_card.get_color()])
+            playable_cards |= set(self._deck_by_key[BLACK])
+            if (self._top_card.is_change_color()):
+                playable_cards |= set(self._deck_by_key[self._color])
+
+        self._playable_cards = playable_cards
+        return None
 
     def _set_color(self, color: Color = None) -> None:
         self._color = color
@@ -264,6 +276,12 @@ class Table:
 
     def terminated(self) -> bool:
         return (self._state == GameState.TERMINATED)
+
+    def running(self) -> bool:
+        return (self._state == GameState.RUNNING)
+
+    def ready(self) -> bool:
+        return (self._state == GameState.READY)
 
     def __repr__(self) -> str:
         return str(self._players_list)

@@ -12,8 +12,9 @@ from src.model.Color import Color, COLORS
 from src.model.Player import Player
 from src.model.Table import Table
 from src.utils.stickers import STICKERS, STICKERS_GREY
+from src.utils.token import TOKEN
 
-updater: Updater = Updater("5354446808:AAEL1YJKk8Vjl7zbsU-RpX2q8f3G87eOjCA")
+updater: Updater = Updater(TOKEN)
 dispatcher = updater.dispatcher
 table: Optional[Table] = None
 chat_id: Optional[int] = None
@@ -34,7 +35,7 @@ def join_game(update: Update, context: CallbackContext) -> None:
     new_player: Player = Player(name=player_name, id_=player_id)
     if (new_player not in table.get_players()):
         table.add_player(player=new_player)
-        message: str = f"{player_name} joined the game!"
+        message: str = f"Joined the game!"
     else:
         message = f"Already in game!"
 
@@ -53,9 +54,11 @@ def start_game(update: Update, callback: CallbackContext) -> None:
     if (table is None):
         bot.send_message(chat_id, text="First, create a game!")
         return None
-    elif (len(table.get_players()) < 2):
+    elif (not table.ready()):
         bot.send_message(chat_id, text="Wait more players!")
         return None
+    elif (table.running()):
+        bot.send_message(chat_id, text="Game already started!")
 
     table.start_game()
     bot.send_message(chat_id, text="Game started!")
@@ -80,7 +83,7 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
     if (table.choosing_color()) and (user_id == current_player.id()):
         card_buttons = choose_color()
     elif (user_id == current_player.id()):
-        playable_cards = table.allowed_cards()
+        playable_cards = table.playable_cards
         if (not current_player.have_allowed_card(allowed_cards=playable_cards)):
             sticker_id = "option_draw"
             sticker = STICKERS[sticker_id]
