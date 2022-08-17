@@ -48,7 +48,7 @@ class Table:
         if (self.num_players() >= MIN_PLAYERS):
             self._state = GameState.READY
 
-        if (self._state == GameState.RUNNING):
+        if (self.running()):
             self._players.push_back(data=player)
 
         return None
@@ -58,7 +58,7 @@ class Table:
         if (self.num_players() < MIN_PLAYERS):
             self._state = GameState.WAITING
 
-        if (self._state == GameState.RUNNING):
+        if (self.running()):
             if (player == self.current_player()):
                 self._next_player()
 
@@ -67,7 +67,7 @@ class Table:
         return None
 
     def start_game(self) -> None:
-        if (self._state != GameState.READY):
+        if (not self.ready()):
             # TODO: raise exception
             return None
 
@@ -90,7 +90,6 @@ class Table:
         if isinstance(selected, Color):
             self._set_color(color=selected)
             self._next_player()
-            self._compute_playable_cards()
             return None
 
         current_player: Player = self.current_player()
@@ -116,8 +115,6 @@ class Table:
                 return None
         else:
             self._play_card(card=selected)
-
-        self._compute_playable_cards()
 
         return None
 
@@ -202,7 +199,7 @@ class Table:
             card = self.get_random_card()
 
         self._top_card: Card = card
-        self._color: Color = card.get_color()
+        self._set_color()
 
         return None
 
@@ -210,6 +207,8 @@ class Table:
         if (self.current_player().winner()):
             self._state = GameState.TERMINATED
             return None
+
+        self._compute_playable_cards()
 
         if (self._reverse):
             self._actual_player_node = self._actual_player_node.previous()
