@@ -25,14 +25,22 @@ class DoublyCircularList:
     def not_empty(self) -> bool:
         return (not self.empty())
 
-    def head_to_next(self) -> None:
-        if (self.not_empty() and self._head.next()):
+    def head_to_next(self, steps: int = 1) -> None:
+        if (self.size < 2):
+            return None
+
+        for _ in range(steps):
             self._head = self._head.next()
+
         return None
 
-    def head_to_previous(self) -> None:
-        if (self.not_empty() and self._head.previous()):
+    def head_to_previous(self, steps: int = 1) -> None:
+        if (self.size < 2):
+            return None
+
+        for _ in range(steps):
             self._head = self._head.previous()
+
         return None
 
     def push_back(self, data: T) -> None:
@@ -221,3 +229,12 @@ class DoublyCircularList:
 
     def __repr__(self) -> str:
         return (f"{self._head}, {self._size}")
+
+    def __iter__(self):
+        datas: List[T] = []
+        node: Node = self.head
+        for _ in range(self.size):
+            datas.append(node.data())
+            node = node.next()
+
+        return iter(datas)

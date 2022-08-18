@@ -1,4 +1,4 @@
-from random import choice, shuffle
+from random import choice, randint
 from typing import List, Dict, Set, Union, Optional
 
 from .Card import Card
@@ -15,7 +15,6 @@ from ..utils.settings import (BLOCK_DRAW, DRAW_WHILE_NO_CARD, INITIAL_CARDS_NUMB
 
 class Table:
     def __init__(self) -> None:
-        self._players_list: List[Player] = []
         self._players: DoublyCircularList = DoublyCircularList()
         self._value_to_buy: int = 0
         self._reverse: bool = False
@@ -23,18 +22,18 @@ class Table:
         self._playable_cards: Set[Card] = set()
         self._set_deck()
 
-    def get_players(self) -> List[Player]:
-        return self._players_list
+    def get_players(self):
+        return self._players
 
     @property
     def state(self) -> GameState:
         return self._state
 
     def num_players(self) -> int:
-        return len(self._players_list)
+        return self._players.size
 
     def get_player(self, player_id: int) -> Optional[Player]:
-        for player in self._players_list:
+        for player in self.get_players():
             if (player.id() == player_id):
                 return player
         return None
@@ -43,25 +42,21 @@ class Table:
         return self._top_card
 
     def add_player(self, player: Player) -> None:
-        self._players_list.append(player)
+        index: int = randint(0, self.num_players())
+        self._players.insert(data=player, index=index)
         if (self.num_players() >= MIN_PLAYERS):
             self._state = GameState.READY
-
-        if (self.running()):
-            self._players.push_back(data=player)
 
         return None
 
     def remove_player(self, player: Player) -> None:
-        self._players_list.remove(player)
-        if (self.num_players() < MIN_PLAYERS):
-            self._state = GameState.WAITING
-
         if (self.running()):
             if (player == self.current_player()):
                 self._next_player()
 
-            self._players.remove(data=player)
+        self._players.remove(data=player)
+        if (self.num_players() < MIN_PLAYERS):
+            self._state = GameState.WAITING
 
         return None
 
@@ -70,15 +65,12 @@ class Table:
             # TODO: raise exception
             return None
 
-        shuffle(self._players_list)
-
-        if (self._players.not_empty()):
-            self._players.clear()
-
-        for player in self._players_list:
+        for player in self.get_players():
             self._give_cards_to_player(player, num_cards=INITIAL_CARDS_NUMBER)
 
-        self._players.insert_values(self._players_list)
+        steps: int = randint(0, self.num_players())
+        self._players.head_to_next(steps=steps)
+
         self._set_initial_top_card()
         self._compute_playable_cards()
 
@@ -286,4 +278,4 @@ class Table:
         return (self._state == GameState.READY)
 
     def __repr__(self) -> str:
-        return str(self._players_list)
+        return f"{str(self._players)} - {str(self.current_card())}"
