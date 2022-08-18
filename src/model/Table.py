@@ -71,7 +71,7 @@ class Table:
         steps: int = randint(0, self.num_players())
         self._players.head_to_next(steps=steps)
 
-        self._set_initial_top_card()
+        self._set_initial_card()
         self._compute_playable_cards()
 
         return None
@@ -185,7 +185,7 @@ class Table:
     def get_random_card(self) -> Card:
         return choice(self._deck)
 
-    def _set_initial_top_card(self) -> None:
+    def _set_initial_card(self) -> None:
         card: Card = self.get_random_card()
 
         while card.is_special():
@@ -202,15 +202,12 @@ class Table:
             return None
 
         self._compute_playable_cards()
+        steps: int = 1 + block
 
         if (self._reverse):
-            self._players.head_to_previous()
-            if (block):
-                self._players.head_to_previous()
+            self._players.head_to_previous(steps=steps)
         else:
-            self._players.head_to_next()
-            if (block):
-                self._players.head_to_next()
+            self._players.head_to_next(steps=steps)
 
         return None
 
