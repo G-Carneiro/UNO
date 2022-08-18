@@ -13,7 +13,7 @@ from ..utils.settings import (BLOCK_DRAW_FOUR, DRAW_WHILE_NO_CARD, INITIAL_CARDS
                               PASS_AFTER_FORCED_DRAW, REVERSE_DRAW_FOUR, DRAW_TWO_OVER_DRAW_TWO,
                               DRAW_FOUR_OVER_DRAW_TWO, DRAW_FOUR_OVER_DRAW_FOUR,
                               DRAW_TWO_OVER_DRAW_FOUR, BLOCK_DRAW_TWO, REVERSE_DRAW_TWO, REVERSE_ONLY_WITH_SAME_COLOR,
-                              BLOCK_ONLY_WITH_SAME_COLOR, SWAP_HAND_AFTER_PLAY, BLACK_OVER_BLACK)
+                              BLOCK_ONLY_WITH_SAME_COLOR, SWAP_HAND_AFTER_PLAY, BLACK_OVER_BLACK, BLOCK_REVERSE_DRAW)
 
 
 class Table:
@@ -265,6 +265,16 @@ class Table:
             else:   # card is reverse, then REVERSE_DRAW enabled
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
+                reverses: Set[Card] = set(self._deck_by_key[CardType.REVERSE])
+                if (REVERSE_ONLY_WITH_SAME_COLOR):
+                    reverses &= set(self._deck_by_key[self._color])
+
+                playable_cards |= reverses
+                if ((BLOCK_REVERSE_DRAW) and (self._value_to_buy <= MAX_TO_BLOCK)):
+                    blocks: Set[Card] = set(self._deck_by_key[CardType.SKIP])
+                    if (BLOCK_ONLY_WITH_SAME_COLOR):
+                        blocks &= set(self._deck_by_key[self._color])
+                    playable_cards |= blocks
         else:
             playable_cards |= set(self._deck_by_key[self._top_card.type])
             playable_cards |= set(self._deck_by_key[self._color])
