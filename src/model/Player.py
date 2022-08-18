@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List, Set, Optional, Dict
 
 from .Card import Card
-from .Color import Color, BLACK, COLORS
+from .Color import Color
 from ..utils.settings import WIN_WITH_BLACK
 
 
@@ -25,7 +25,7 @@ class Player:
 
     def put_card(self, card: Card) -> None:
         self._cards.remove(card)
-        self._num_color_cards[card.get_color()] -= 1
+        self._num_color_cards[card.color] -= 1
         return None
 
     def draw_card(self, card: Card) -> None:
@@ -35,7 +35,7 @@ class Player:
                 index = i
                 break
         self._cards.insert(index, card)
-        self._num_color_cards[card.get_color()] += 1
+        self._num_color_cards[card.color] += 1
         return None
 
     def winner(self) -> bool:

@@ -122,7 +122,7 @@ class Table:
         if self._top_card.is_reverse():
             self._reverse = not self._reverse
         elif self._top_card.is_buy_card():
-            self._value_to_buy += self._top_card.get_value()
+            self._value_to_buy += self._top_card.value
         elif self._top_card.is_skip():
             if self._value_to_buy:
                 self._value_to_buy = 0
@@ -224,8 +224,8 @@ class Table:
             if ((BLOCK_DRAW) and (self._value_to_buy <= MAX_TO_BLOCK)):
                 playable_cards |= set(self._deck_by_key[CardType.SKIP])
         else:
-            playable_cards |= set(self._deck_by_key[self._top_card.get_type()])
-            playable_cards |= set(self._deck_by_key[self._top_card.get_color()])
+            playable_cards |= set(self._deck_by_key[self._top_card.type])
+            playable_cards |= set(self._deck_by_key[self._top_card.color])
             playable_cards |= set(self._deck_by_key[BLACK])
             if (self._top_card.is_change_color() and self.running()):
                 playable_cards |= set(self._deck_by_key[self._color])
@@ -245,7 +245,7 @@ class Table:
             next_player = self._current_node().next()
 
         status: str = f"To draw: {self._value_to_buy} \n" \
-                      f"Current card: {self._top_card}{self._top_card.get_color().value} \n" \
+                      f"Current card: {self._top_card}{self._top_card.color.value} \n" \
                       f"Current player: {self.current_player()} ({self.current_player().num_cards()}) \n" \
                       f"Next players: {next_player.data()} ({next_player.data().num_cards()})"
 

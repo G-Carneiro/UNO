@@ -1,11 +1,11 @@
+from typing import List, Set
 from unittest import TestCase
-from typing import List, Set, Dict
 
 from src.model.Card import Card
-from src.model.Table import Table
+from src.model.CardType import CardType
 from src.model.Color import Color
 from src.model.Player import Player
-from src.model.CardType import CardType
+from src.model.Table import Table
 
 
 class TableTests(TestCase):
@@ -39,7 +39,7 @@ class TableTests(TestCase):
 
         # Test number of cards by value.
         for value in range(10):
-            self.assertEqual(4, len(self._table._deck_by_key[value]))
+            self.assertEqual(4, len(self._table._deck_by_key[CardType(value)]))
 
         # Test number of all cards in deck_by_key.
         cards: Set[Card] = set()
@@ -52,14 +52,4 @@ class TableTests(TestCase):
         return None
 
     def test_start_game(self) -> None:
-        eu: Player = Player(name="eu")
-        hari: Player = Player(name="hari")
-        rosa: Player = Player(name="rosa")
-        john: Player = Player(name="john")
-        erick: Player = Player(name="erick")
-        self._table._players_list = [eu, hari, rosa, john, erick]
-
-        self._table.start_game()
-
-        # while True:
-        #     self._table.start_game()
+        pass

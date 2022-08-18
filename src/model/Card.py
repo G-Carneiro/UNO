@@ -16,13 +16,16 @@ class Card:
         self._color: Color = color
         self._type: CardType = type_
 
-    def get_color(self) -> Color:
+    @property
+    def color(self) -> Color:
         return self._color
 
-    def get_value(self) -> Optional[int]:
+    @property
+    def value(self) -> Optional[int]:
         return self._value
 
-    def get_type(self) -> CardType:
+    @property
+    def type(self) -> CardType:
         return self._type
 
     def is_draw_two(self) -> bool:
@@ -57,7 +60,7 @@ class Card:
         if isinstance(self._value, int):
             out += str(self._value)
         else:
-            out += str(self.get_type().name)
+            out += str(self.type.name)
 
         if (self._color != BLACK):
             out += str(self._color.name)
@@ -68,7 +71,7 @@ class Card:
         return self.__repr__()
 
     def __lt__(self, other: Card) -> bool:
-        if (self._color != other.get_color()):
-            return (self._color < other.get_color())
+        if (self._color != other.color):
+            return (self._color < other.color)
 
-        return (self.get_type() < other.get_type())
+        return (self.type < other.type)
