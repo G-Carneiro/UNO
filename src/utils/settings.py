@@ -1,5 +1,6 @@
 BLACK_OVER_BLACK: bool = True
-BLOCK_DRAW: bool = True
+BLOCK_DRAW_FOUR: bool = True
+BLOCK_DRAW_TWO: bool = True
 CALL_BLUFF: bool = False
 DRAW_FOUR_OVER_DRAW_FOUR: bool = True
 DRAW_FOUR_OVER_DRAW_TWO: bool = True
@@ -13,7 +14,8 @@ MAX_TO_REVERSE: int = 20
 MIN_PLAYERS: int = 2
 PASS_AFTER_DRAW: bool = False
 PASS_AFTER_FORCED_DRAW: bool = True
-REVERSE_DRAW: bool = True
+REVERSE_DRAW_FOUR: bool = True
+REVERSE_DRAW_TWO: bool = True
 SHUFFLE_HANDS: bool = False
 SWAP_HAND_AFTER_PLAY: bool = False
 SWAP_HAND: bool = False

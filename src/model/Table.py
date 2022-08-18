@@ -8,11 +8,11 @@ from .DoublyCircularList import DoublyCircularList
 from .GameState import GameState
 from .Node import DoublyLinkedListNode as Node
 from .Player import Player
-from ..utils.settings import (BLOCK_DRAW, DRAW_WHILE_NO_CARD, INITIAL_CARDS_NUMBER,
+from ..utils.settings import (BLOCK_DRAW_FOUR, DRAW_WHILE_NO_CARD, INITIAL_CARDS_NUMBER,
                               MAX_TO_BLOCK, MAX_TO_REVERSE, MIN_PLAYERS, PASS_AFTER_DRAW,
-                              PASS_AFTER_FORCED_DRAW, REVERSE_DRAW, DRAW_TWO_OVER_DRAW_TWO,
+                              PASS_AFTER_FORCED_DRAW, REVERSE_DRAW_FOUR, DRAW_TWO_OVER_DRAW_TWO,
                               DRAW_FOUR_OVER_DRAW_TWO, DRAW_FOUR_OVER_DRAW_FOUR,
-                              DRAW_TWO_OVER_DRAW_FOUR)
+                              DRAW_TWO_OVER_DRAW_FOUR, BLOCK_DRAW_TWO, REVERSE_DRAW_TWO)
 
 
 class Table:
@@ -225,18 +225,22 @@ class Table:
                     playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
                 if (DRAW_TWO_OVER_DRAW_TWO):
                     playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
+                if ((REVERSE_DRAW_TWO) and (self._value_to_buy <= MAX_TO_REVERSE)):
+                    playable_cards |= set(self._deck_by_key[CardType.REVERSE])
+                if ((BLOCK_DRAW_TWO) and (self._value_to_buy <= MAX_TO_BLOCK)):
+                    playable_cards |= set(self._deck_by_key[CardType.SKIP])
             elif (self._top_card.is_draw_four()):
                 if (DRAW_FOUR_OVER_DRAW_FOUR):
                     playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
                 if (DRAW_TWO_OVER_DRAW_FOUR):
                     playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
+                if ((REVERSE_DRAW_FOUR) and (self._value_to_buy <= MAX_TO_REVERSE)):
+                    playable_cards |= set(self._deck_by_key[CardType.REVERSE])
+                if ((BLOCK_DRAW_FOUR) and (self._value_to_buy <= MAX_TO_BLOCK)):
+                    playable_cards |= set(self._deck_by_key[CardType.SKIP])
             else:   # card is reverse, then REVERSE_DRAW enabled
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
-            if ((REVERSE_DRAW) and (self._value_to_buy <= MAX_TO_REVERSE)):
-                playable_cards |= set(self._deck_by_key[CardType.REVERSE])
-            if ((BLOCK_DRAW) and (self._value_to_buy <= MAX_TO_BLOCK)):
-                playable_cards |= set(self._deck_by_key[CardType.SKIP])
         else:
             playable_cards |= set(self._deck_by_key[self._top_card.type])
             playable_cards |= set(self._deck_by_key[self._top_card.color])
