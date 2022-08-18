@@ -13,7 +13,7 @@ from ..utils.settings import (BLOCK_DRAW_FOUR, DRAW_WHILE_NO_CARD, INITIAL_CARDS
                               PASS_AFTER_FORCED_DRAW, REVERSE_DRAW_FOUR, DRAW_TWO_OVER_DRAW_TWO,
                               DRAW_FOUR_OVER_DRAW_TWO, DRAW_FOUR_OVER_DRAW_FOUR,
                               DRAW_TWO_OVER_DRAW_FOUR, BLOCK_DRAW_TWO, REVERSE_DRAW_TWO, REVERSE_ONLY_WITH_SAME_COLOR,
-                              BLOCK_ONLY_WITH_SAME_COLOR, SWAP_HAND_AFTER_PLAY)
+                              BLOCK_ONLY_WITH_SAME_COLOR, SWAP_HAND_AFTER_PLAY, BLACK_OVER_BLACK)
 
 
 class Table:
@@ -268,7 +268,8 @@ class Table:
         else:
             playable_cards |= set(self._deck_by_key[self._top_card.type])
             playable_cards |= set(self._deck_by_key[self._color])
-            playable_cards |= set(self._deck_by_key[BLACK])
+            if (BLACK_OVER_BLACK or not self._top_card.is_black()):
+                playable_cards |= set(self._deck_by_key[BLACK])
 
         self._playable_cards = playable_cards
         return None
