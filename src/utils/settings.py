@@ -1,6 +1,7 @@
 BLACK_OVER_BLACK: bool = True
 BLOCK_DRAW_FOUR: bool = True
 BLOCK_DRAW_TWO: bool = True
+BLOCK_ONLY_WITH_SAME_COLOR: bool = False
 CALL_BLUFF: bool = False
 DRAW_FOUR_OVER_DRAW_FOUR: bool = True
 DRAW_FOUR_OVER_DRAW_TWO: bool = True
@@ -16,6 +17,7 @@ PASS_AFTER_DRAW: bool = False
 PASS_AFTER_FORCED_DRAW: bool = True
 REVERSE_DRAW_FOUR: bool = True
 REVERSE_DRAW_TWO: bool = True
+REVERSE_ONLY_WITH_SAME_COLOR: bool = False
 SHUFFLE_HANDS: bool = False
 SWAP_HAND_AFTER_PLAY: bool = False
 SWAP_HAND: bool = False

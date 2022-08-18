@@ -12,7 +12,8 @@ from ..utils.settings import (BLOCK_DRAW_FOUR, DRAW_WHILE_NO_CARD, INITIAL_CARDS
                               MAX_TO_BLOCK, MAX_TO_REVERSE, MIN_PLAYERS, PASS_AFTER_DRAW,
                               PASS_AFTER_FORCED_DRAW, REVERSE_DRAW_FOUR, DRAW_TWO_OVER_DRAW_TWO,
                               DRAW_FOUR_OVER_DRAW_TWO, DRAW_FOUR_OVER_DRAW_FOUR,
-                              DRAW_TWO_OVER_DRAW_FOUR, BLOCK_DRAW_TWO, REVERSE_DRAW_TWO)
+                              DRAW_TWO_OVER_DRAW_FOUR, BLOCK_DRAW_TWO, REVERSE_DRAW_TWO, REVERSE_ONLY_WITH_SAME_COLOR,
+                              BLOCK_ONLY_WITH_SAME_COLOR, SWAP_HAND_AFTER_PLAY)
 
 
 class Table:
@@ -117,9 +118,12 @@ class Table:
         return self._players.head
 
     def _play_card(self, card: Card) -> None:
-        self._set_color()
         self.current_player().put_card(card=card)
+        if (SWAP_HAND_AFTER_PLAY):
+            self._swap_hand_after_play()
+
         self._top_card = card
+        self._set_color()
         block: bool = False
         if self._top_card.is_reverse():
             self._reverse = not self._reverse
@@ -141,6 +145,14 @@ class Table:
     def _give_cards_to_player(self, player: Player, num_cards: int = 1) -> None:
         for _ in range(num_cards):
             player.draw_card(self.get_random_card())
+        return None
+
+    def _swap_hand_after_play(self) -> None:
+        num_cards: int = self.current_player().num_cards()
+        for card in self.current_player().get_cards():
+            self.current_player().put_card(card=card)
+
+        self._give_cards_to_player(player=self.current_player(), num_cards=num_cards)
         return None
 
     def _set_deck(self) -> None:
@@ -226,33 +238,46 @@ class Table:
                 if (DRAW_TWO_OVER_DRAW_TWO):
                     playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
                 if ((REVERSE_DRAW_TWO) and (self._value_to_buy <= MAX_TO_REVERSE)):
-                    playable_cards |= set(self._deck_by_key[CardType.REVERSE])
+                    reverses: Set[Card] = set(self._deck_by_key[CardType.REVERSE])
+                    if (REVERSE_ONLY_WITH_SAME_COLOR):
+                        reverses &= set(self._deck_by_key[self._color])
+                    playable_cards |= reverses
                 if ((BLOCK_DRAW_TWO) and (self._value_to_buy <= MAX_TO_BLOCK)):
-                    playable_cards |= set(self._deck_by_key[CardType.SKIP])
+                    blocks: Set[Card] = set(self._deck_by_key[CardType.SKIP])
+                    if (BLOCK_ONLY_WITH_SAME_COLOR):
+                        blocks &= set(self._deck_by_key[self._color])
+                    playable_cards |= blocks
             elif (self._top_card.is_draw_four()):
                 if (DRAW_FOUR_OVER_DRAW_FOUR):
                     playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
                 if (DRAW_TWO_OVER_DRAW_FOUR):
                     playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
                 if ((REVERSE_DRAW_FOUR) and (self._value_to_buy <= MAX_TO_REVERSE)):
-                    playable_cards |= set(self._deck_by_key[CardType.REVERSE])
+                    reverses: Set[Card] = set(self._deck_by_key[CardType.REVERSE])
+                    if (REVERSE_ONLY_WITH_SAME_COLOR):
+                        reverses &= set(self._deck_by_key[self._color])
+                    playable_cards |= reverses
                 if ((BLOCK_DRAW_FOUR) and (self._value_to_buy <= MAX_TO_BLOCK)):
-                    playable_cards |= set(self._deck_by_key[CardType.SKIP])
+                    blocks: Set[Card] = set(self._deck_by_key[CardType.SKIP])
+                    if (BLOCK_ONLY_WITH_SAME_COLOR):
+                        blocks &= set(self._deck_by_key[self._color])
+                    playable_cards |= blocks
             else:   # card is reverse, then REVERSE_DRAW enabled
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
         else:
             playable_cards |= set(self._deck_by_key[self._top_card.type])
-            playable_cards |= set(self._deck_by_key[self._top_card.color])
+            playable_cards |= set(self._deck_by_key[self._color])
             playable_cards |= set(self._deck_by_key[BLACK])
-            if (self._top_card.is_change_color() and self.running()):
-                playable_cards |= set(self._deck_by_key[self._color])
 
         self._playable_cards = playable_cards
         return None
 
     def _set_color(self, color: Color = None) -> None:
-        self._color = color
+        if (color is None):
+            self._color = self._top_card.color
+        else:
+            self._color = color
         self._state = GameState.RUNNING
         return None
 
