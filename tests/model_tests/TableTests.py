@@ -29,10 +29,10 @@ class TableTests(TestCase):
         self.assertEqual(4, len(self._table._deck_by_key[CardType.REVERSE]))
 
         # Test number of block cards.
-        self.assertEqual(4, len(self._table._deck_by_key[CardType.BLOCK]))
+        self.assertEqual(4, len(self._table._deck_by_key[CardType.SKIP]))
 
         # Test number of buy cards.
-        self.assertEqual(5, len(self._table._deck_by_key[CardType.BUY]))
+        self.assertEqual(5, len(self._table._deck_by_key[CardType.DRAW_TWO]))
 
         # Test number of change color cards.
         self.assertEqual(2, len(self._table._deck_by_key[CardType.CHANGE_COLOR]))

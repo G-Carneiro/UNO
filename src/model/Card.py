@@ -25,14 +25,20 @@ class Card:
     def get_type(self) -> CardType:
         return self._type
 
+    def is_draw_two(self) -> bool:
+        return (self._type == CardType.DRAW_TWO)
+
+    def is_draw_four(self) -> bool:
+        return (self._type == CardType.DRAW_FOUR)
+
     def is_buy_card(self) -> bool:
-        return (self._type == CardType.BUY or self._type == CardType.PLUS_FOUR)
+        return (self._type == CardType.DRAW_TWO or self._type == CardType.DRAW_FOUR)
 
     def is_reverse(self) -> bool:
         return (self._type == CardType.REVERSE)
 
-    def is_block(self) -> bool:
-        return (self._type == CardType.BLOCK)
+    def is_skip(self) -> bool:
+        return (self._type == CardType.SKIP)
 
     def is_change_color(self) -> bool:
         return (self._color == BLACK)
