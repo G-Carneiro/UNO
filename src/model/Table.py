@@ -233,35 +233,17 @@ class Table:
         playable_cards: Set[Card] = set()
         if (self._value_to_buy):
             if (self._top_card.is_draw_two()):
-                if (DRAW_FOUR_OVER_DRAW_TWO):
-                    playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
-                if (DRAW_TWO_OVER_DRAW_TWO):
-                    playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
-                if ((REVERSE_DRAW_TWO) and (self._value_to_buy <= MAX_TO_REVERSE)):
-                    reverses: Set[Card] = set(self._deck_by_key[CardType.REVERSE])
-                    if (REVERSE_ONLY_WITH_SAME_COLOR):
-                        reverses &= set(self._deck_by_key[self._color])
-                    playable_cards |= reverses
-                if ((BLOCK_DRAW_TWO) and (self._value_to_buy <= MAX_TO_BLOCK)):
-                    blocks: Set[Card] = set(self._deck_by_key[CardType.SKIP])
-                    if (BLOCK_ONLY_WITH_SAME_COLOR):
-                        blocks &= set(self._deck_by_key[self._color])
-                    playable_cards |= blocks
+                self._compute_draw_case(playable_cards=playable_cards,
+                                        draw_four_over_draw=DRAW_FOUR_OVER_DRAW_TWO,
+                                        draw_two_over_draw=DRAW_TWO_OVER_DRAW_TWO,
+                                        block_draw=BLOCK_DRAW_TWO,
+                                        reverse_draw=REVERSE_DRAW_TWO)
             elif (self._top_card.is_draw_four()):
-                if (DRAW_FOUR_OVER_DRAW_FOUR):
-                    playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
-                if (DRAW_TWO_OVER_DRAW_FOUR):
-                    playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
-                if ((REVERSE_DRAW_FOUR) and (self._value_to_buy <= MAX_TO_REVERSE)):
-                    reverses: Set[Card] = set(self._deck_by_key[CardType.REVERSE])
-                    if (REVERSE_ONLY_WITH_SAME_COLOR):
-                        reverses &= set(self._deck_by_key[self._color])
-                    playable_cards |= reverses
-                if ((BLOCK_DRAW_FOUR) and (self._value_to_buy <= MAX_TO_BLOCK)):
-                    blocks: Set[Card] = set(self._deck_by_key[CardType.SKIP])
-                    if (BLOCK_ONLY_WITH_SAME_COLOR):
-                        blocks &= set(self._deck_by_key[self._color])
-                    playable_cards |= blocks
+                self._compute_draw_case(playable_cards=playable_cards,
+                                        draw_four_over_draw=DRAW_FOUR_OVER_DRAW_FOUR,
+                                        draw_two_over_draw=DRAW_TWO_OVER_DRAW_FOUR,
+                                        block_draw=BLOCK_DRAW_FOUR,
+                                        reverse_draw=REVERSE_DRAW_FOUR)
             else:   # card is reverse, then REVERSE_DRAW enabled
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
@@ -282,6 +264,29 @@ class Table:
                 playable_cards |= set(self._deck_by_key[BLACK])
 
         self._playable_cards = playable_cards
+        return None
+
+    def _compute_draw_case(self,
+                           playable_cards: Set[Card],
+                           draw_four_over_draw: bool,
+                           draw_two_over_draw: bool,
+                           block_draw: bool,
+                           reverse_draw: bool
+                           ) -> None:
+        if (draw_four_over_draw):
+            playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
+        if (draw_two_over_draw):
+            playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
+        if ((reverse_draw) and (self._value_to_buy <= MAX_TO_REVERSE)):
+            reverses: Set[Card] = set(self._deck_by_key[CardType.REVERSE])
+            if (REVERSE_ONLY_WITH_SAME_COLOR):
+                reverses &= set(self._deck_by_key[self._color])
+            playable_cards |= reverses
+        if ((block_draw) and (self._value_to_buy <= MAX_TO_BLOCK)):
+            blocks: Set[Card] = set(self._deck_by_key[CardType.SKIP])
+            if (BLOCK_ONLY_WITH_SAME_COLOR):
+                blocks &= set(self._deck_by_key[self._color])
+            playable_cards |= blocks
         return None
 
     def _set_color(self, color: Color = None) -> None:
