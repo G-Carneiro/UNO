@@ -45,8 +45,14 @@ class Table:
         return self._top_card
 
     def add_player(self, player: Player) -> None:
-        index: int = randint(0, self.num_players())
+        if (self.running()):
+            # new player can't join as current player
+            index: int = randint(1, self.num_players())
+        else:
+            index: int = randint(0, self.num_players())
         self._players.insert(data=player, index=index)
+        self._give_cards_to_player(player, num_cards=INITIAL_CARDS_NUMBER)
+
         if (self.num_players() >= MIN_PLAYERS):
             self._state = GameState.READY
 
@@ -67,9 +73,6 @@ class Table:
         if (not self.ready()):
             # TODO: raise exception
             return None
-
-        for player in self.get_players():
-            self._give_cards_to_player(player, num_cards=INITIAL_CARDS_NUMBER)
 
         steps: int = randint(0, self.num_players())
         self._players.head_to_next(steps=steps)

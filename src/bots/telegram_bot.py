@@ -45,6 +45,19 @@ def join_game(update: Update, context: CallbackContext) -> None:
     return None
 
 
+def leave_game(update: Update, context: CallbackContext) -> None:
+    player_id: int = update.message.from_user.id
+    player: Player = table.get_player(player_id=player_id)
+    if (player in table.get_players()):
+        table.remove_player(player=player)
+        message: str = f"Left the game!"
+    else:
+        message = f"Is not playing!"
+
+    send_message_to_all(update=update, message=message)
+    return None
+
+
 def start_game(update: Update, callback: CallbackContext) -> None:
     bot: Bot = callback.bot
     chat = update.message.chat
@@ -190,6 +203,7 @@ dispatcher.add_handler(InlineQueryHandler(show_cards))
 dispatcher.add_handler(ChosenInlineResultHandler(selected_card, pass_job_queue=True))
 # dispatcher.add_handler(CallbackQueryHandler(show_cards))
 dispatcher.add_handler(CommandHandler("join_game", join_game))
+dispatcher.add_handler(CommandHandler("leave_game", leave_game))
 dispatcher.add_handler(CommandHandler("start_game", start_game, pass_args=True, pass_job_queue=True))
 dispatcher.add_handler(CommandHandler("create_game", create_game))
 updater.start_polling()

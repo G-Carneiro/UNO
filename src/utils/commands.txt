@@ -1,0 +1,11 @@
+join
+close
+open
+kill
+kick
+skip
+help
+leave
+new
+start
+status
