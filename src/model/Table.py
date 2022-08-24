@@ -129,7 +129,10 @@ class Table:
         self._set_color()
         block: bool = False
         if self._top_card.is_reverse():
-            self._reverse = not self._reverse
+            if (self.num_players() != 2):
+                self._reverse = not self._reverse
+            else:
+                block = True
         elif self._top_card.is_buy_card():
             self._value_to_buy += self._top_card.value
         elif self._top_card.is_skip():
