@@ -45,8 +45,7 @@ class Player:
         return None
 
     def winner(self) -> bool:
-        # FIXME: solve the problem when player have more than 50 cards in telegram bot
-        return (not 0 < self.num_cards() <= 50)
+        return (not self.num_cards())
 
     def uno(self) -> bool:
         return (self.num_cards() == 1)

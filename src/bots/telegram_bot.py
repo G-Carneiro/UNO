@@ -120,6 +120,8 @@ def _gen_sticker_cards(card_buttons: List[Sticker], player: Player, playable_car
     for card in player.get_cards():
         card_name: str = str(card).lower()
         if (card_name in added_cards) or (card not in playable_cards):
+            if (player.num_cards() > 50):
+                continue
             sticker_id: str = str(uuid4())
             sticker = STICKERS_GREY[card_name]
             input_message = InputTextMessageContent(status())
