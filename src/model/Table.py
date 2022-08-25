@@ -61,7 +61,7 @@ class Table:
     def remove_player(self, player: Player) -> None:
         if (self.running()):
             if (player == self.current_player()):
-                self._next_player()
+                self.next_player()
 
         self._players.remove(data=player)
         if (self.num_players() < MIN_PLAYERS):
@@ -85,7 +85,7 @@ class Table:
     def turn(self, selected: Union[Card, Color] = None) -> None:
         if isinstance(selected, Color):
             self._set_color(color=selected)
-            self._next_player()
+            self.next_player()
             return None
 
         current_player: Player = self.current_player()
@@ -96,7 +96,7 @@ class Table:
                     self._give_cards_to_player(current_player, self._value_to_buy)
                     self._value_to_buy = 0
                     if PASS_AFTER_FORCED_DRAW:
-                        self._next_player()
+                        self.next_player()
                 else:
                     card: Card = self.get_random_card()
                     current_player.draw_card(card)
@@ -106,7 +106,7 @@ class Table:
                             current_player.draw_card(card)
 
                     if PASS_AFTER_DRAW:
-                        self._next_player()
+                        self.next_player()
             else:
                 return None
         else:
@@ -131,7 +131,7 @@ class Table:
         if self._top_card.is_reverse():
             if (self.num_players() != 2):
                 self._reverse = not self._reverse
-            else:
+            elif (not self._value_to_buy):
                 block = True
         elif self._top_card.is_buy_card():
             self._value_to_buy += self._top_card.value
@@ -145,7 +145,7 @@ class Table:
             self._state = GameState.CHOOSING
             return None
 
-        self._next_player(block=block)
+        self.next_player(block=block)
         return None
 
     def _give_cards_to_player(self, player: Player, num_cards: int = 1) -> None:
@@ -216,7 +216,7 @@ class Table:
 
         return None
 
-    def _next_player(self, block: bool = False) -> None:
+    def next_player(self, block: bool = False) -> None:
         if (self.current_player().winner()):
             self._state = GameState.TERMINATED
             return None

@@ -1,11 +1,11 @@
 create - Creates a new game.
-leave - Leave game.
 join - Join in game.
+leave - Leave game.
 start - Start game.
+skip - Skip current player.
 close
 open
 kill
 kick
-skip - Skip current player.
 help
 status - Status of game.
