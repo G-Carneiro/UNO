@@ -155,9 +155,7 @@ class Table:
 
     def _swap_hand_after_play(self) -> None:
         num_cards: int = self.current_player().num_cards()
-        for card in self.current_player().get_cards():
-            self.current_player().put_card(card=card)
-
+        self.current_player().drop_hand()
         self._give_cards_to_player(player=self.current_player(), num_cards=num_cards)
         return None
 

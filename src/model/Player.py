@@ -23,6 +23,12 @@ class Player:
     def get_cards(self) -> List[Card]:
         return self._cards
 
+    def drop_hand(self) -> None:
+        while (not self.winner()):
+            self.put_card(self._cards[0])
+
+        return None
+
     def put_card(self, card: Card) -> None:
         self._cards.remove(card)
         self._num_color_cards[card.color] -= 1
@@ -39,7 +45,8 @@ class Player:
         return None
 
     def winner(self) -> bool:
-        return (not self.num_cards())
+        # FIXME: solve the problem when player have more than 50 cards in telegram bot
+        return (not 0 < self.num_cards() <= 50)
 
     def uno(self) -> bool:
         return (self.num_cards() == 1)
