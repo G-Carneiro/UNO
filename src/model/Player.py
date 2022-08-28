@@ -45,7 +45,7 @@ class Player:
         return None
 
     def winner(self) -> bool:
-        return (not self.num_cards())
+        return (not 0 < self.num_cards() < 100)
 
     def uno(self) -> bool:
         return (self.num_cards() == 1)

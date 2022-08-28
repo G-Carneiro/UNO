@@ -102,7 +102,8 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
             sticker = STICKERS[sticker_id]
             new_button = Sticker(sticker_id, sticker_file_id=sticker)
             card_buttons.append(new_button)
-            _disable_all_cards(card_buttons=card_buttons, player=current_player)
+            if (current_player.num_cards() < 50):
+                _disable_all_cards(card_buttons=card_buttons, player=current_player)
         else:
             _gen_sticker_cards(card_buttons=card_buttons, player=current_player,
                                playable_cards=playable_cards)
