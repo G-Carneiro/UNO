@@ -1,5 +1,6 @@
 from random import choice, randint
 from typing import List, Dict, Set, Union, Optional
+from time import time
 
 from .Card import Card
 from .CardType import CardType
@@ -23,6 +24,7 @@ class Table:
         self._reverse: bool = False
         self._state: GameState = GameState.CREATED
         self._playable_cards: Set[Card] = set()
+        self._timeout: int = 0
         self._set_deck()
 
     def get_players(self):
@@ -50,6 +52,7 @@ class Table:
             index: int = randint(1, self.num_players())
         else:
             index: int = randint(0, self.num_players())
+        # index: int = randint(self.running(), self.num_players())
         self._players.insert(data=player, index=index)
         self._give_cards_to_player(player, num_cards=INITIAL_CARDS_NUMBER)
 
@@ -79,6 +82,7 @@ class Table:
 
         self._set_initial_card()
         self._compute_playable_cards()
+        self._timeout = time()
 
         return None
 
@@ -227,6 +231,13 @@ class Table:
         else:
             self._players.head_to_next(steps=steps)
 
+        self._timeout = time()
+
+        return None
+
+    def skip(self) -> None:
+        if (self._timeout - time() >= 60):
+            self.next_player()
         return None
 
     @property

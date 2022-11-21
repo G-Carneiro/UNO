@@ -203,9 +203,8 @@ def choose_color() -> List[InlineQueryResultArticle]:
 
 def skip(update: Update, context: CallbackContext) -> None:
     bot = context.bot
-    a = bin(12)
     if (table.running()):
-        table.next_player()
+        table.skip()
     bot.send_message(chat_id, text=status(), reply_markup=InlineKeyboardMarkup(make_choice()))
     return None
 
