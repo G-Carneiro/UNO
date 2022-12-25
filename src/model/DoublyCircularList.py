@@ -1,11 +1,11 @@
-from typing import List, Optional
 from random import shuffle
+from typing import Optional
 
 from .Node import DoublyLinkedListNode as Node, T
 
 
 class DoublyCircularList:
-    def __init__(self, start_list: Optional[List[T]] = None) -> None:
+    def __init__(self, start_list: Optional[list[T]] = None) -> None:
         self._head: Optional[Node] = None
         self._size: int = 0
         if start_list:
@@ -101,7 +101,7 @@ class DoublyCircularList:
 
         return None
 
-    def insert_values(self, values: List[T]) -> None:
+    def insert_values(self, values: list[T]) -> None:
         for value in values:
             self.push_back(value)
 
@@ -209,7 +209,7 @@ class DoublyCircularList:
         if (self._size < 3):
             return None
 
-        nodes: List[Node] = [self._head]
+        nodes: list[Node] = [self._head]
         actual_node: Node = self._head
         tail: Node = self._head.previous()
         while (actual_node != tail):
@@ -231,7 +231,7 @@ class DoublyCircularList:
         return (f"{self._head}, {self._size}")
 
     def __iter__(self):
-        datas: List[T] = []
+        datas: list[T] = []
         node: Node = self.head
         for _ in range(self.size):
             datas.append(node.data())

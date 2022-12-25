@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List
 
 
 class Color(Enum):
@@ -19,4 +18,4 @@ class Color(Enum):
 
 
 BLACK: Color = Color.BLACK
-COLORS: List[Color] = [color for color in Color if color != BLACK]
+COLORS: list[Color] = [color for color in Color if color != BLACK]

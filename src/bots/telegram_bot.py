@@ -1,4 +1,4 @@
-from typing import List, Optional, Set
+from typing import Optional
 from uuid import uuid4
 
 from telegram import (Bot, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle,
@@ -75,7 +75,7 @@ def start_game(update: Update, callback: CallbackContext) -> None:
     return None
 
 
-def make_choice() -> List[List[InlineKeyboardButton]]:
+def make_choice() -> list[list[InlineKeyboardButton]]:
     return [[InlineKeyboardButton(text="Make your choice!", switch_inline_query_current_chat='')]]
 
 
@@ -109,8 +109,9 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
     return None
 
 
-def _gen_sticker_cards(card_buttons: List[Sticker], player: Player, playable_cards: Set[Card]) -> None:
-    added_cards: List[str] = []
+def _gen_sticker_cards(card_buttons: list[Sticker], player: Player,
+                       playable_cards: set[Card]) -> None:
+    added_cards: list[str] = []
     for card in player.get_cards():
         card_name: str = str(card).lower()
         if (card_name in added_cards) or (card not in playable_cards):
@@ -131,7 +132,7 @@ def _gen_sticker_cards(card_buttons: List[Sticker], player: Player, playable_car
     return None
 
 
-def _disable_all_cards(card_buttons: List[Sticker], player: Player) -> None:
+def _disable_all_cards(card_buttons: list[Sticker], player: Player) -> None:
     input_message = InputTextMessageContent(status())
     for card in player.get_cards():
         card_name: str = str(card).lower()
@@ -182,13 +183,14 @@ def status() -> str:
     return table.status()
 
 
-def choose_color() -> List[InlineQueryResultArticle]:
-    colors: List[InlineQueryResultArticle] = []
+def choose_color() -> list[InlineQueryResultArticle]:
+    colors: list[InlineQueryResultArticle] = []
     for color in COLORS:
         message: str = str(color)
         num_cards: int = table.current_player().num_color_card(color)
         new_article = InlineQueryResultArticle(id=color.name, title=f"{message} ({num_cards})",
-                                               input_message_content=InputTextMessageContent(message))
+                                               input_message_content=InputTextMessageContent(
+                                                   message))
         colors.append(new_article)
 
     return colors

@@ -1,10 +1,8 @@
-from typing import List, Set
 from unittest import TestCase
 
 from src.model.Card import Card
 from src.model.CardType import CardType
 from src.model.Color import Color
-from src.model.Player import Player
 from src.model.Table import Table
 
 
@@ -18,7 +16,7 @@ class TableTests(TestCase):
 
         # Test number of cards by color.
         black: Color = Color.BLACK
-        usual_colors: List[Color] = [color for color in Color if color != black]
+        usual_colors: list[Color] = [color for color in Color if color != black]
 
         for color in usual_colors:
             self.assertEqual(13, len(self._table._deck_by_key[color]))
@@ -42,7 +40,7 @@ class TableTests(TestCase):
             self.assertEqual(4, len(self._table._deck_by_key[CardType(value)]))
 
         # Test number of all cards in deck_by_key.
-        cards: Set[Card] = set()
+        cards: set[Card] = set()
         for value in self._table._deck_by_key.values():
             for card in value:
                 cards.add(card)

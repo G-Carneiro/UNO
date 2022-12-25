@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List
 
 
 class CardType(Enum):
@@ -25,4 +24,4 @@ class CardType(Enum):
         return (self.value < other.value)
 
 
-INT: List[CardType] = [CardType(i) for i in range(10)]
+INT: list[CardType] = [CardType(i) for i in range(10)]

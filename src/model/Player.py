@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Set
+from typing import Optional
 
 from .Card import Card
 from .Color import Color
@@ -10,8 +10,8 @@ class Player:
     def __init__(self, name: str, id_: int) -> None:
         self._name: str = name
         self._id: int = id_
-        self._cards: List[Card] = []
-        self._num_color_cards: Dict[Color, int] = {color: 0 for color in Color}
+        self._cards: list[Card] = []
+        self._num_color_cards: dict[Color, int] = {color: 0 for color in Color}
 
     def id(self) -> int:
         return self._id
@@ -19,7 +19,7 @@ class Player:
     def get_name(self) -> str:
         return self._name
 
-    def get_cards(self) -> List[Card]:
+    def get_cards(self) -> list[Card]:
         return self._cards
 
     def drop_hand(self) -> None:
@@ -49,17 +49,17 @@ class Player:
     def uno(self) -> bool:
         return (self.num_cards() == 1)
 
-    def have_playable_card(self, playable_cards: Set[Card]) -> bool:
+    def have_playable_card(self, playable_cards: set[Card]) -> bool:
         for card in self._cards:
             if card in playable_cards:
                 return True
 
         return False
 
-    def not_have_playable_card(self, playable_cards: Set[Card]) -> bool:
+    def not_have_playable_card(self, playable_cards: set[Card]) -> bool:
         return (not self.have_playable_card(playable_cards=playable_cards))
 
-    def put_playable_card(self, playable_cards: Set[Card]) -> Optional[Card]:
+    def put_playable_card(self, playable_cards: set[Card]) -> Optional[Card]:
         for card in self._cards:
             if card in playable_cards:
                 self.put_card(card)

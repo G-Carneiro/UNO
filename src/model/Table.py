@@ -1,5 +1,5 @@
 from random import choice, randint
-from typing import Dict, List, Optional, Set, Union
+from typing import Optional
 
 from .Card import Card
 from .CardType import CardType
@@ -18,7 +18,7 @@ class Table:
         self._value_to_buy: int = 0
         self._reverse: bool = False
         self._state: GameState = GameState.CREATED
-        self._playable_cards: Set[Card] = set()
+        self._playable_cards: set[Card] = set()
         self._set_deck()
 
     def get_players(self):
@@ -81,7 +81,7 @@ class Table:
 
         return None
 
-    def turn(self, selected: Union[Card, Color] = None) -> None:
+    def turn(self, selected: Card | Color = None) -> None:
         if isinstance(selected, Color):
             self._set_color(color=selected)
             self.next_player()
@@ -159,8 +159,8 @@ class Table:
         return None
 
     def _set_deck(self) -> None:
-        self._deck: List[Card] = []
-        self._deck_by_key: Dict[Union[Color, CardType], List[Card]] = {}
+        self._deck: list[Card] = []
+        self._deck_by_key: dict[Color | CardType, list[Card]] = {}
 
         for color in Color:
             self._deck_by_key[color] = []
@@ -229,11 +229,11 @@ class Table:
         return None
 
     @property
-    def playable_cards(self) -> Set[Card]:
+    def playable_cards(self) -> set[Card]:
         return self._playable_cards
 
     def _compute_playable_cards(self) -> None:
-        playable_cards: Set[Card] = set()
+        playable_cards: set[Card] = set()
         if (self._value_to_buy):
             if (self._top_card.is_draw_two()):
                 self._compute_draw_case(playable_cards=playable_cards,
@@ -247,16 +247,16 @@ class Table:
                                         draw_two_over_draw=DRAW_TWO_OVER_DRAW_FOUR,
                                         block_draw=BLOCK_DRAW_FOUR,
                                         reverse_draw=REVERSE_DRAW_FOUR)
-            else:   # card is reverse, then REVERSE_DRAW enabled
+            else:  # card is reverse, then REVERSE_DRAW enabled
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
-                reverses: Set[Card] = set(self._deck_by_key[CardType.REVERSE])
+                reverses: set[Card] = set(self._deck_by_key[CardType.REVERSE])
                 if (REVERSE_ONLY_WITH_SAME_COLOR):
                     reverses &= set(self._deck_by_key[self._color])
 
                 playable_cards |= reverses
                 if ((BLOCK_REVERSE_DRAW) and (self._value_to_buy <= MAX_TO_BLOCK)):
-                    blocks: Set[Card] = set(self._deck_by_key[CardType.SKIP])
+                    blocks: set[Card] = set(self._deck_by_key[CardType.SKIP])
                     if (BLOCK_ONLY_WITH_SAME_COLOR):
                         blocks &= set(self._deck_by_key[self._color])
                     playable_cards |= blocks
@@ -273,7 +273,7 @@ class Table:
         return None
 
     def _compute_draw_case(self,
-                           playable_cards: Set[Card],
+                           playable_cards: set[Card],
                            draw_four_over_draw: bool,
                            draw_two_over_draw: bool,
                            block_draw: bool,
@@ -282,17 +282,17 @@ class Table:
         if (draw_four_over_draw):
             playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
         if (draw_two_over_draw):
-            draw_two_cards: Set[Card] = set(self._deck_by_key[CardType.DRAW_TWO])
+            draw_two_cards: set[Card] = set(self._deck_by_key[CardType.DRAW_TWO])
             if (DRAW_TWO_ONLY_WITH_SAME_COLOR):
                 draw_two_cards &= set(self._deck_by_key[self._color])
             playable_cards |= draw_two_cards
         if ((reverse_draw) and (self._value_to_buy <= MAX_TO_REVERSE)):
-            reverses: Set[Card] = set(self._deck_by_key[CardType.REVERSE])
+            reverses: set[Card] = set(self._deck_by_key[CardType.REVERSE])
             if (REVERSE_ONLY_WITH_SAME_COLOR):
                 reverses &= set(self._deck_by_key[self._color])
             playable_cards |= reverses
         if ((block_draw) and (self._value_to_buy <= MAX_TO_BLOCK)):
-            blocks: Set[Card] = set(self._deck_by_key[CardType.SKIP])
+            blocks: set[Card] = set(self._deck_by_key[CardType.SKIP])
             if (BLOCK_ONLY_WITH_SAME_COLOR):
                 blocks &= set(self._deck_by_key[self._color])
             playable_cards |= blocks
@@ -314,7 +314,8 @@ class Table:
 
         status: str = f"To draw: {self._value_to_buy} \n" \
                       f"Current card: {self._top_card}{self._top_card.color.value} \n" \
-                      f"Current player: {self.current_player()} ({self.current_player().num_cards()}) \n" \
+                      f"Current player: {self.current_player()} (" \
+                      f"{self.current_player().num_cards()}) \n" \
                       f"Next players: {next_player.data()} ({next_player.data().num_cards()})"
 
         while True:
