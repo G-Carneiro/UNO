@@ -1,3 +1,5 @@
+AUTO_CHOOSE_COLOR: bool = False
+AUTO_SKIP: bool = False
 BLACK_OVER_BLACK: bool = True
 BLOCK_DRAW_FOUR: bool = True
 BLOCK_DRAW_TWO: bool = True
@@ -11,10 +13,6 @@ DRAW_TWO_OVER_DRAW_FOUR: bool = True
 DRAW_TWO_OVER_DRAW_TWO: bool = True
 DRAW_WHILE_NO_CARD: bool = True
 FORCED_PLAY: bool = True  # TODO
-INITIAL_CARDS_NUMBER: int = 7
-MAX_TO_BLOCK: int = 10
-MAX_TO_REVERSE: int = 20
-MIN_PLAYERS: int = 2
 PASS_AFTER_DRAW: bool = False
 PASS_AFTER_FORCED_DRAW: bool = True
 REVERSE_DRAW_FOUR: bool = True

@@ -1,16 +1,16 @@
 from random import choice, randint
-from typing import Optional
 from time import time
+from typing import Optional
 
 from .Card import Card
 from .CardType import CardType
 from .Color import BLACK, Color, COLORS
 from .DoublyCircularList import DoublyCircularList
 from .exceptions import *
+from .GameMode import GameMode
 from .GameState import GameState
 from .Node import DoublyLinkedListNode as Node
 from .Player import Player
-from ..utils.settings import *
 
 
 class Table:
@@ -19,6 +19,7 @@ class Table:
         self._value_to_buy: int = 0
         self._reverse: bool = False
         self._state: GameState = GameState.CREATED
+        self._mode: GameMode = GameMode()
         self._playable_cards: set[Card] = set()
         self._timeout: int = 0
         self._set_deck()
@@ -29,6 +30,10 @@ class Table:
     @property
     def state(self) -> GameState:
         return self._state
+
+    @property
+    def mode(self) -> GameMode:
+        return self._mode
 
     def num_players(self) -> int:
         return self._players.size
@@ -49,9 +54,9 @@ class Table:
         # new player can't join as current player
         index: int = randint(self.running(), self.num_players())
         self._players.insert(data=player, index=index)
-        self._give_cards_to_player(player, num_cards=INITIAL_CARDS_NUMBER)
+        self._give_cards_to_player(player, num_cards=self.mode.num_cards)
 
-        if (self.num_players() >= MIN_PLAYERS):
+        if (self.num_players() >= self.mode.min_players):
             self._state = GameState.READY
 
         return None
@@ -66,7 +71,7 @@ class Table:
         else:
             raise NotInGame
 
-        if (self.num_players() < MIN_PLAYERS):
+        if (self.num_players() < self.mode.min_players):
             self._state = GameState.WAITING
 
         return None
@@ -75,8 +80,8 @@ class Table:
         if (not self.ready()):
             raise GameNotReady
 
-        steps: int = randint(0, self.num_players())
-        self._players.head_to_next(steps=steps)
+        # steps: int = randint(0, self.num_players())
+        # self._players.head_to_next(steps=steps)
 
         self._set_initial_card()
         self._compute_playable_cards()
@@ -97,17 +102,17 @@ class Table:
                 if (self._value_to_buy):
                     self._give_cards_to_player(current_player, self._value_to_buy)
                     self._value_to_buy = 0
-                    if PASS_AFTER_FORCED_DRAW:
+                    if self.mode.pass_after_forced_draw:
                         self.next_player()
                 else:
                     card: Card = self.get_random_card()
                     current_player.draw_card(card)
-                    if DRAW_WHILE_NO_CARD:
+                    if self.mode.draw_while_no_card:
                         while card not in playable_cards:
                             card: Card = self.get_random_card()
                             current_player.draw_card(card)
 
-                    if PASS_AFTER_DRAW:
+                    if self.mode.pass_after_draw:
                         self.next_player()
             else:
                 return None
@@ -124,7 +129,7 @@ class Table:
 
     def _play_card(self, card: Card) -> None:
         self.current_player().put_card(card=card)
-        if (SWAP_HAND_AFTER_PLAY):
+        if (self.mode.swap_hand_after_play):
             self._swap_hand_after_play()
 
         self._top_card = card
@@ -144,7 +149,11 @@ class Table:
                 block = True
 
         if self._top_card.is_change_color():
-            self._state = GameState.CHOOSING
+            if (self.mode.auto_choose_color):
+                color: Color = self.current_player().main_color()
+                self._set_color(color=color)
+            else:
+                self._state = GameState.CHOOSING
             return None
 
         self.next_player(block=block)
@@ -234,7 +243,7 @@ class Table:
         return None
 
     def skip(self) -> None:
-        if (self._timeout - time() >= 60):
+        if (self._timeout - time() >= self.mode.timeout):
             self.next_player()
         return None
 
@@ -247,36 +256,37 @@ class Table:
         if (self._value_to_buy):
             if (self._top_card.is_draw_two()):
                 self._compute_draw_case(playable_cards=playable_cards,
-                                        draw_four_over_draw=DRAW_FOUR_OVER_DRAW_TWO,
-                                        draw_two_over_draw=DRAW_TWO_OVER_DRAW_TWO,
-                                        block_draw=BLOCK_DRAW_TWO,
-                                        reverse_draw=REVERSE_DRAW_TWO)
+                                        draw_four_over_draw=self.mode.draw_four_over_draw_two,
+                                        draw_two_over_draw=self.mode.draw_two_over_draw_two,
+                                        block_draw=self.mode.block_draw_two,
+                                        reverse_draw=self.mode.reverse_draw_two)
             elif (self._top_card.is_draw_four()):
                 self._compute_draw_case(playable_cards=playable_cards,
-                                        draw_four_over_draw=DRAW_FOUR_OVER_DRAW_FOUR,
-                                        draw_two_over_draw=DRAW_TWO_OVER_DRAW_FOUR,
-                                        block_draw=BLOCK_DRAW_FOUR,
-                                        reverse_draw=REVERSE_DRAW_FOUR)
+                                        draw_four_over_draw=self.mode.draw_four_over_draw_four,
+                                        draw_two_over_draw=self.mode.draw_two_over_draw_four,
+                                        block_draw=self.mode.block_draw_four,
+                                        reverse_draw=self.mode.reverse_draw_four)
             else:  # card is reverse, then REVERSE_DRAW enabled
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
                 playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
                 reverses: set[Card] = set(self._deck_by_key[CardType.REVERSE])
-                if (REVERSE_ONLY_WITH_SAME_COLOR):
+                if (self.mode.reverse_only_with_same_color):
                     reverses &= set(self._deck_by_key[self._color])
 
                 playable_cards |= reverses
-                if ((BLOCK_REVERSE_DRAW) and (self._value_to_buy <= MAX_TO_BLOCK)):
+                if ((self.mode.block_reverse_draw) and (
+                        self._value_to_buy <= self.mode.max_to_block)):
                     blocks: set[Card] = set(self._deck_by_key[CardType.SKIP])
-                    if (BLOCK_ONLY_WITH_SAME_COLOR):
+                    if (self.mode.block_only_with_same_color):
                         blocks &= set(self._deck_by_key[self._color])
                     playable_cards |= blocks
         else:
             playable_cards |= set(self._deck_by_key[self._top_card.type])
             playable_cards |= set(self._deck_by_key[self._color])
-            if (BLACK_OVER_BLACK or not self._top_card.is_black()):
+            if (self.mode.black_over_black or not self._top_card.is_black()):
                 playable_cards |= set(self._deck_by_key[BLACK])
 
-        if (self.current_player().uno() and not WIN_WITH_BLACK):
+        if (self.current_player().uno() and not self.mode.win_with_black):
             playable_cards -= set(self._deck_by_key[BLACK])
 
         self._playable_cards = playable_cards
@@ -293,17 +303,17 @@ class Table:
             playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
         if (draw_two_over_draw):
             draw_two_cards: set[Card] = set(self._deck_by_key[CardType.DRAW_TWO])
-            if (DRAW_TWO_ONLY_WITH_SAME_COLOR):
+            if (self.mode.draw_two_only_with_same_color):
                 draw_two_cards &= set(self._deck_by_key[self._color])
             playable_cards |= draw_two_cards
-        if ((reverse_draw) and (self._value_to_buy <= MAX_TO_REVERSE)):
+        if ((reverse_draw) and (self._value_to_buy <= self.mode.max_to_reverse)):
             reverses: set[Card] = set(self._deck_by_key[CardType.REVERSE])
-            if (REVERSE_ONLY_WITH_SAME_COLOR):
+            if (self.mode.reverse_only_with_same_color):
                 reverses &= set(self._deck_by_key[self._color])
             playable_cards |= reverses
-        if ((block_draw) and (self._value_to_buy <= MAX_TO_BLOCK)):
+        if ((block_draw) and (self._value_to_buy <= self.mode.max_to_block)):
             blocks: set[Card] = set(self._deck_by_key[CardType.SKIP])
-            if (BLOCK_ONLY_WITH_SAME_COLOR):
+            if (self.mode.block_only_with_same_color):
                 blocks &= set(self._deck_by_key[self._color])
             playable_cards |= blocks
         return None

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Optional
 
 from .Card import Card
-from .Color import Color
+from .Color import BLACK, Color
 
 
 class Player:
@@ -78,6 +78,14 @@ class Player:
 
     def num_color_card(self, color: Color) -> int:
         return self._num_color_cards[color]
+
+    def main_color(self) -> Color:
+        black_cards: int = self.num_color_card(color=BLACK)
+        self._num_color_cards[BLACK] = 0
+        main: Color = max(self._num_color_cards, key=self._num_color_cards.get)
+        self._num_color_cards[BLACK] = black_cards
+
+        return main
 
     def __repr__(self) -> str:
         return self._name
