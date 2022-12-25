@@ -1,14 +1,14 @@
 from typing import List, Optional, Set
 from uuid import uuid4
 
-from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup,
-                      Bot, InlineQueryResultCachedSticker as Sticker,
-                      InputTextMessageContent, InlineQueryResultArticle)
-from telegram.ext import (CallbackContext, CommandHandler, Updater,
-                          InlineQueryHandler, ChosenInlineResultHandler)
+from telegram import (Bot, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle,
+                      InlineQueryResultCachedSticker as Sticker, InputTextMessageContent, Update)
+from telegram.ext import (CallbackContext, ChosenInlineResultHandler, CommandHandler,
+                          InlineQueryHandler, Updater)
 
 from src.model.Card import Card
 from src.model.Color import Color, COLORS
+from src.model.exceptions import *
 from src.model.Player import Player
 from src.model.Table import Table
 from src.utils.stickers import STICKERS, STICKERS_GREY
@@ -33,14 +33,12 @@ def join_game(update: Update, context: CallbackContext) -> None:
     player_name: str = update.message.from_user.first_name
     player_id: int = update.message.from_user.id
     new_player: Player = Player(name=player_name, id_=player_id)
-    if (new_player not in table.get_players()):
+    try:
         table.add_player(player=new_player)
         message: str = f"Joined the game!"
-    else:
-        message = f"Already in game!"
+    except AlreadyJoined as e:
+        message = f"{e}"
 
-    # table.add_player(player=new_player)
-    # message: str = f"{player_name} joined the game!"
     send_message_to_all(update=update, message=message)
     return None
 
@@ -48,11 +46,11 @@ def join_game(update: Update, context: CallbackContext) -> None:
 def leave_game(update: Update, context: CallbackContext) -> None:
     player_id: int = update.message.from_user.id
     player: Player = table.get_player(player_id=player_id)
-    if (player in table.get_players()):
+    try:
         table.remove_player(player=player)
         message: str = f"Left the game!"
-    else:
-        message = f"Is not playing!"
+    except NotInGame as e:
+        message = f"{e}"
 
     send_message_to_all(update=update, message=message)
     return None
@@ -64,19 +62,15 @@ def start_game(update: Update, callback: CallbackContext) -> None:
     global chat_id
     chat_id = chat.id
 
-    if (table is None):
-        bot.send_message(chat_id, text="First, create a game!")
-        return None
-    elif (not table.ready()):
-        bot.send_message(chat_id, text="Wait more players!")
-        return None
-    elif (table.running()):
-        bot.send_message(chat_id, text="Game already started!")
-
-    table.start_game()
-    bot.send_message(chat_id, text="Game started!")
-    bot.send_sticker(chat_id, sticker=STICKERS[str(table.current_card()).lower()])
-    bot.send_message(chat_id, text=status(), reply_markup=InlineKeyboardMarkup(make_choice()))
+    try:
+        table.start_game()
+    except (AttributeError, AlreadyRunning, GameNotReady) as e:
+        message = f"{e}"
+        bot.send_message(chat_id, text=message)
+    else:
+        bot.send_message(chat_id, text="Game started!")
+        bot.send_sticker(chat_id, sticker=STICKERS[str(table.current_card()).lower()])
+        bot.send_message(chat_id, text=status(), reply_markup=InlineKeyboardMarkup(make_choice()))
 
     return None
 
@@ -111,7 +105,6 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
         _disable_all_cards(card_buttons=card_buttons, player=player)
 
     bot = callback.bot
-    # dispatcher.run_async(bot.answer_inline_query, update.inline_query.id, card_buttons, cache_time=0)
     bot.answer_inline_query(update.inline_query.id, card_buttons, cache_time=0)
     return None
 

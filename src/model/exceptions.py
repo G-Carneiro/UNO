@@ -1,22 +1,28 @@
 class AlreadyCreated(Exception):
-    """Game already created!"""
+    def __str__(self):
+        return "Game already created!"
 
 
 class AlreadyJoined(Exception):
-    """Already in game!"""
+    def __str__(self):
+        return "Already in game!"
 
 
 class AlreadyRunning(Exception):
-    """Game already started!"""
+    def __str__(self):
+        return "Game already started!"
 
 
 class GameNotCreated(Exception):
-    """Game is not created!"""
+    def __str__(self):
+        return "Game is not created!"
 
 
-class NeedMorePlayers(Exception):
-    """More players are needed to play!"""
+class GameNotReady(Exception):
+    def __str__(self):
+        return "More players are needed to play!"
 
 
 class NotInGame(Exception):
-    """You are not playing!"""
+    def __str__(self):
+        return "You are not playing!"

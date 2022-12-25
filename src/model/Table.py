@@ -1,6 +1,7 @@
-from random import choice, randint
+rom random import choice, randint
 from typing import List, Dict, Set, Union, Optional
 
+from .exceptions import *
 from .Card import Card
 from .CardType import CardType
 from .Color import BLACK, Color, COLORS
@@ -14,6 +15,25 @@ from ..utils.settings import (BLOCK_DRAW_FOUR, DRAW_WHILE_NO_CARD, INITIAL_CARDS
                               DRAW_FOUR_OVER_DRAW_TWO, DRAW_FOUR_OVER_DRAW_FOUR,
                               DRAW_TWO_OVER_DRAW_FOUR, BLOCK_DRAW_TWO, REVERSE_DRAW_TWO, REVERSE_ONLY_WITH_SAME_COLOR,
                               BLOCK_ONLY_WITH_SAME_COLOR, SWAP_HAND_AFTER_PLAY, BLACK_OVER_BLACK, BLOCK_REVERSE_DRAW)
+
+from random import choice, randint
+from typing import Dict, List, Optional, Set, Union
+
+from .Card import Card
+from .CardType import CardType
+from .Color import BLACK, Color, COLORS
+from .DoublyCircularList import DoublyCircularList
+from .exceptions import *
+from .GameState import GameState
+from .Node import DoublyLinkedListNode as Node
+from .Player import Player
+from ..utils.settings import (BLACK_OVER_BLACK, BLOCK_DRAW_FOUR, BLOCK_DRAW_TWO,
+                              BLOCK_ONLY_WITH_SAME_COLOR, BLOCK_REVERSE_DRAW,
+                              DRAW_FOUR_OVER_DRAW_FOUR, DRAW_FOUR_OVER_DRAW_TWO,
+                              DRAW_TWO_OVER_DRAW_FOUR, DRAW_TWO_OVER_DRAW_TWO, DRAW_WHILE_NO_CARD,
+                              INITIAL_CARDS_NUMBER, MAX_TO_BLOCK, MAX_TO_REVERSE, MIN_PLAYERS,
+                              PASS_AFTER_DRAW, PASS_AFTER_FORCED_DRAW, REVERSE_DRAW_FOUR,
+                              REVERSE_DRAW_TWO, REVERSE_ONLY_WITH_SAME_COLOR, SWAP_HAND_AFTER_PLAY)
 
 
 class Table:
@@ -45,11 +65,11 @@ class Table:
         return self._top_card
 
     def add_player(self, player: Player) -> None:
-        if (self.running()):
-            # new player can't join as current player
-            index: int = randint(1, self.num_players())
-        else:
-            index: int = randint(0, self.num_players())
+        if (player in self._players):
+            raise AlreadyJoined
+
+        # new player can't join as current player
+        index: int = randint(self.running(), self.num_players())
         self._players.insert(data=player, index=index)
         self._give_cards_to_player(player, num_cards=INITIAL_CARDS_NUMBER)
 
@@ -63,7 +83,11 @@ class Table:
             if (player == self.current_player()):
                 self.next_player()
 
-        self._players.remove(data=player)
+        if (self._players.contains(player)):
+            self._players.remove(data=player)
+        else:
+            raise NotInGame
+
         if (self.num_players() < MIN_PLAYERS):
             self._state = GameState.WAITING
 
@@ -71,8 +95,7 @@ class Table:
 
     def start_game(self) -> None:
         if (not self.ready()):
-            # TODO: raise exception
-            return None
+            raise GameNotReady
 
         steps: int = randint(0, self.num_players())
         self._players.head_to_next(steps=steps)
