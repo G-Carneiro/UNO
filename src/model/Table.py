@@ -1,21 +1,3 @@
-rom random import choice, randint
-from typing import List, Dict, Set, Union, Optional
-
-from .exceptions import *
-from .Card import Card
-from .CardType import CardType
-from .Color import BLACK, Color, COLORS
-from .DoublyCircularList import DoublyCircularList
-from .GameState import GameState
-from .Node import DoublyLinkedListNode as Node
-from .Player import Player
-from ..utils.settings import (BLOCK_DRAW_FOUR, DRAW_WHILE_NO_CARD, INITIAL_CARDS_NUMBER,
-                              MAX_TO_BLOCK, MAX_TO_REVERSE, MIN_PLAYERS, PASS_AFTER_DRAW,
-                              PASS_AFTER_FORCED_DRAW, REVERSE_DRAW_FOUR, DRAW_TWO_OVER_DRAW_TWO,
-                              DRAW_FOUR_OVER_DRAW_TWO, DRAW_FOUR_OVER_DRAW_FOUR,
-                              DRAW_TWO_OVER_DRAW_FOUR, BLOCK_DRAW_TWO, REVERSE_DRAW_TWO, REVERSE_ONLY_WITH_SAME_COLOR,
-                              BLOCK_ONLY_WITH_SAME_COLOR, SWAP_HAND_AFTER_PLAY, BLACK_OVER_BLACK, BLOCK_REVERSE_DRAW)
-
 from random import choice, randint
 from typing import Dict, List, Optional, Set, Union
 
@@ -27,13 +9,7 @@ from .exceptions import *
 from .GameState import GameState
 from .Node import DoublyLinkedListNode as Node
 from .Player import Player
-from ..utils.settings import (BLACK_OVER_BLACK, BLOCK_DRAW_FOUR, BLOCK_DRAW_TWO,
-                              BLOCK_ONLY_WITH_SAME_COLOR, BLOCK_REVERSE_DRAW,
-                              DRAW_FOUR_OVER_DRAW_FOUR, DRAW_FOUR_OVER_DRAW_TWO,
-                              DRAW_TWO_OVER_DRAW_FOUR, DRAW_TWO_OVER_DRAW_TWO, DRAW_WHILE_NO_CARD,
-                              INITIAL_CARDS_NUMBER, MAX_TO_BLOCK, MAX_TO_REVERSE, MIN_PLAYERS,
-                              PASS_AFTER_DRAW, PASS_AFTER_FORCED_DRAW, REVERSE_DRAW_FOUR,
-                              REVERSE_DRAW_TWO, REVERSE_ONLY_WITH_SAME_COLOR, SWAP_HAND_AFTER_PLAY)
+from ..utils.settings import *
 
 
 class Table:
@@ -242,7 +218,6 @@ class Table:
             self._state = GameState.TERMINATED
             return None
 
-        self._compute_playable_cards()
         steps: int = 1 + block
 
         if (self._reverse):
@@ -250,6 +225,7 @@ class Table:
         else:
             self._players.head_to_next(steps=steps)
 
+        self._compute_playable_cards()
         return None
 
     @property
@@ -290,6 +266,9 @@ class Table:
             if (BLACK_OVER_BLACK or not self._top_card.is_black()):
                 playable_cards |= set(self._deck_by_key[BLACK])
 
+        if (self.current_player().uno() and not WIN_WITH_BLACK):
+            playable_cards -= set(self._deck_by_key[BLACK])
+
         self._playable_cards = playable_cards
         return None
 
@@ -303,7 +282,10 @@ class Table:
         if (draw_four_over_draw):
             playable_cards |= set(self._deck_by_key[CardType.DRAW_FOUR])
         if (draw_two_over_draw):
-            playable_cards |= set(self._deck_by_key[CardType.DRAW_TWO])
+            draw_two_cards: Set[Card] = set(self._deck_by_key[CardType.DRAW_TWO])
+            if (DRAW_TWO_ONLY_WITH_SAME_COLOR):
+                draw_two_cards &= set(self._deck_by_key[self._color])
+            playable_cards |= draw_two_cards
         if ((reverse_draw) and (self._value_to_buy <= MAX_TO_REVERSE)):
             reverses: Set[Card] = set(self._deck_by_key[CardType.REVERSE])
             if (REVERSE_ONLY_WITH_SAME_COLOR):
