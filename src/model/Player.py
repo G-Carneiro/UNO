@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from .Card import Card
+from .Card import CALL_BLUFF, Card, DRAW
 from .Color import BLACK, Color
 
 
@@ -12,6 +12,15 @@ class Player:
         self._id: int = id_
         self._cards: list[Card] = []
         self._num_color_cards: dict[Color, int] = {color: 0 for color in Color}
+        self._bluffing: bool = False
+
+    @property
+    def bluffing(self) -> bool:
+        return self._bluffing
+
+    @bluffing.setter
+    def bluffing(self, value: bool):
+        self._bluffing = value
 
     def id(self) -> int:
         return self._id
@@ -68,7 +77,7 @@ class Player:
         return None
 
     def select_card(self, name: str) -> Optional[Card]:
-        for card in self._cards:
+        for card in self._cards + [CALL_BLUFF, DRAW]:
             if (name.lower() == str(card).lower()):
                 return card
         return None

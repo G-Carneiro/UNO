@@ -12,9 +12,9 @@ from src.model.exceptions import *
 from src.model.Player import Player
 from src.model.Table import Table
 from src.utils.stickers import STICKERS, STICKERS_GREY
-from src.utils.token import TOKEN
+from src.utils.token import TELEGRAM
 
-updater: Updater = Updater(TOKEN)
+updater: Updater = Updater(TELEGRAM)
 dispatcher = updater.dispatcher
 table: Optional[Table] = None
 chat_id: Optional[int] = None
@@ -91,8 +91,13 @@ def show_cards(update: Update, callback: CallbackContext) -> None:
         card_buttons = choose_color()
     elif (user_id == current_player.id()):
         playable_cards = table.playable_cards
+        if (table.call_bluff):
+            sticker_id = "call_bluff"
+            sticker = STICKERS[sticker_id]
+            new_button = Sticker(sticker_id, sticker_file_id=sticker)
+            card_buttons.append(new_button)
         if (current_player.not_have_playable_card(playable_cards=playable_cards)):
-            sticker_id = "option_draw"
+            sticker_id = "draw"
             sticker = STICKERS[sticker_id]
             new_button = Sticker(sticker_id, sticker_file_id=sticker)
             card_buttons.append(new_button)
@@ -205,6 +210,7 @@ def skip(update: Update, context: CallbackContext) -> None:
 
 
 # TODO: mark actual player in chat
+
 dispatcher.add_handler(InlineQueryHandler(show_cards))
 dispatcher.add_handler(ChosenInlineResultHandler(selected_card, pass_job_queue=True))
 # dispatcher.add_handler(CallbackQueryHandler(show_cards))

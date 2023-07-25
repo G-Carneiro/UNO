@@ -1,8 +1,7 @@
 from random import choice, randint
 from time import time
-from typing import Optional
 
-from .Card import Card
+from .Card import *
 from .CardType import CardType
 from .Color import BLACK, Color, COLORS
 from .DoublyCircularList import DoublyCircularList
@@ -22,10 +21,15 @@ class Table:
         self._mode: GameMode = GameMode()
         self._playable_cards: set[Card] = set()
         self._timeout: int = 0
+        self._call_bluff: bool = False
         self._set_deck()
 
     def get_players(self):
         return self._players
+
+    @property
+    def call_bluff(self) -> bool:
+        return self._call_bluff
 
     @property
     def state(self) -> GameState:
@@ -97,7 +101,20 @@ class Table:
 
         current_player: Player = self.current_player()
         playable_cards = self.playable_cards
-        if (selected not in playable_cards):
+        if (selected == CALL_BLUFF):
+            self._call_bluff = False
+            previous_player = self._current_node().previous().data()
+            value_to_buy = self._value_to_buy
+            self._value_to_buy = 0
+            if (previous_player.bluffing):
+                self._give_cards_to_player(player=previous_player, num_cards=value_to_buy)
+                previous_player.bluffing = False
+                self._compute_playable_cards()
+            else:
+                self._give_cards_to_player(player=current_player, num_cards=int(value_to_buy * 1.5))
+                if self.mode.pass_after_forced_draw:
+                    self.next_player()
+        elif (selected == DRAW):
             if (current_player.not_have_playable_card(playable_cards=playable_cards)):
                 if (self._value_to_buy):
                     self._give_cards_to_player(current_player, self._value_to_buy)
@@ -117,6 +134,12 @@ class Table:
             else:
                 return None
         else:
+            if (self.mode.call_bluff and selected.is_draw_four()):
+                self._call_bluff = True
+                playable_cards.discard(self._deck_by_key[CardType.DRAW_FOUR][0])
+                if (current_player.have_playable_card(playable_cards=playable_cards)):
+                    current_player.bluffing = True
+
             self._play_card(card=selected)
 
         return None

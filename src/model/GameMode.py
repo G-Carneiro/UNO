@@ -1,5 +1,5 @@
 class GameMode:
-    def __init__(self, mode: int | str = "1000011110111101101111100",
+    def __init__(self, mode: int | str = "1000001110111101101011100",
                  num_cards: int = 7,
                  max_to_block: int = 10,
                  max_to_reverse: int = 20,

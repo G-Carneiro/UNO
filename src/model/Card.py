@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Optional
 
 from .CardType import CardType, INT
-from .Color import Color, BLACK
+from .Color import BLACK, Color
 
 
 class Card:
@@ -75,3 +75,7 @@ class Card:
             return (self._color < other.color)
 
         return (self.type < other.type)
+
+
+CALL_BLUFF: Card = Card(color=BLACK, type_=CardType.CALL_BLUFF)
+DRAW: Card = Card(color=BLACK, type_=CardType.DRAW)

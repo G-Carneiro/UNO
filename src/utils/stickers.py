@@ -53,9 +53,9 @@ STICKERS = {
     'reverseyellow': 'BQADBAADQQIAAl9XmQABZdQFahGG6UQC',
     '+4': 'BQADBAAD9QEAAl9XmQABVlkSNfhn76cC',
     'change_color': 'BQADBAAD8wEAAl9XmQABl9rUOPqx4E4C',
-    'option_draw': 'BQADBAAD-AIAAl9XmQABxEjEcFM-VHIC',
+    'draw': 'BQADBAAD-AIAAl9XmQABxEjEcFM-VHIC',
     'option_pass': 'BQADBAAD-gIAAl9XmQABcEkAAbaZ4SicAg',
-    'option_bluff': 'BQADBAADygIAAl9XmQABJoLfB9ntI2UC',
+    'call_bluff': 'BQADBAADygIAAl9XmQABJoLfB9ntI2UC',
     'option_info': 'BQADBAADxAIAAl9XmQABC5v3Z77VLfEC'
 }
 

@@ -1,1 +1,2 @@
-python-telegram-bot==13.13
+discord==2.1.0
+python-telegram-bot==13.15
