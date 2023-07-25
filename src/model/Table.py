@@ -101,8 +101,8 @@ class Table:
 
         current_player: Player = self.current_player()
         playable_cards = self.playable_cards
+        self._call_bluff = False
         if (selected == CALL_BLUFF):
-            self._call_bluff = False
             previous_player = self._current_node().previous().data()
             value_to_buy = self._value_to_buy
             self._value_to_buy = 0
@@ -115,6 +115,7 @@ class Table:
                 if self.mode.pass_after_forced_draw:
                     self.next_player()
         elif (selected == DRAW):
+            print(f"{35:{8}b}")
             if (current_player.not_have_playable_card(playable_cards=playable_cards)):
                 if (self._value_to_buy):
                     self._give_cards_to_player(current_player, self._value_to_buy)
