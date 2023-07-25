@@ -1,3 +1,6 @@
+TOTAL_BITS: int = 26
+
+
 class GameMode:
     def __init__(self, mode: int | str = "1000001110111101111011100",
                  num_cards: int = 7,
@@ -7,7 +10,7 @@ class GameMode:
                  timeout: int = 60
                  ) -> None:
         if isinstance(mode, int):
-            mode = bin(mode)[2:]
+            mode = f"{35:{0}{TOTAL_BITS}b}"
 
         self.mode: str = mode
         self.num_cards: int = num_cards
