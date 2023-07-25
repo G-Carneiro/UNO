@@ -2,17 +2,17 @@ TOTAL_BITS: int = 26
 
 
 class GameMode:
-    def __init__(self, mode: int | str = "1000001110111101111011100",
+    def __init__(self, mode: int | str = "10000001110111101111011100",
                  num_cards: int = 7,
                  max_to_block: int = 10,
                  max_to_reverse: int = 20,
                  min_players: int = 2,
                  timeout: int = 60
                  ) -> None:
-        if isinstance(mode, int):
-            mode = f"{35:{0}{TOTAL_BITS}b}"
+        if isinstance(mode, str):
+            mode = int(mode, 2)
 
-        self.mode: str = mode
+        self.mode: str = f"{mode:{0}{TOTAL_BITS}b}"
         self.num_cards: int = num_cards
         self.max_to_block: int = max_to_block
         self.max_to_reverse: int = max_to_reverse
