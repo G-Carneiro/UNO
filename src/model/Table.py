@@ -1,4 +1,4 @@
-from random import choice, randint
+from random import choice, randint, shuffle
 from time import time
 
 from .Card import *
@@ -115,7 +115,6 @@ class Table:
                 if self.mode.pass_after_forced_draw:
                     self.next_player()
         elif (selected == DRAW):
-            print(f"{35:{8}b}")
             if (current_player.not_have_playable_card(playable_cards=playable_cards)):
                 if (self._value_to_buy):
                     self._give_cards_to_player(current_player, self._value_to_buy)
@@ -194,6 +193,43 @@ class Table:
         self._give_cards_to_player(player=self.current_player(), num_cards=num_cards)
         return None
 
+    def _swap_hands(self, player: Player) -> None:
+        current_player_cards = self.current_player().get_cards()
+        player_cards = player.get_cards()
+        self.current_player().drop_hand()
+        player.drop_hand()
+        for card in current_player_cards:
+            player.draw_card(card=card)
+        for card in player_cards:
+            self.current_player().draw_card(card=card)
+        return None
+
+    def _shuffle_hands(self) -> None:
+        cards: list[Card] = []
+        players = self.get_players()
+        for player in players:
+            cards.append(player.get_cards())
+        shuffle(cards)
+        for player in players:
+            num_cards: int = player.num_cards()
+            player.drop_hand()
+            for _ in range(num_cards):
+                player.draw_card(cards.pop())
+        return None
+
+    def _shuffle_hands_equally(self) -> None:
+        cards: list[Card] = []
+        players = self.get_players()
+        for player in players:
+            cards.append(player.get_cards())
+        shuffle(cards)
+        num_cards: int = len(cards) // players.size
+        for player in players:
+            player.drop_hand()
+            for _ in range(num_cards):
+                player.draw_card(cards.pop())
+        return None
+
     def _set_deck(self) -> None:
         self._deck: list[Card] = []
         self._deck_by_key: dict[Color | CardType, list[Card]] = {}
@@ -267,7 +303,8 @@ class Table:
         return None
 
     def skip(self) -> None:
-        if (self._timeout - time() >= self.mode.timeout):
+        # TODO: raise exception
+        if (time() - self._timeout >= self.mode.timeout):
             self.next_player()
         return None
 
