@@ -1,10 +1,12 @@
-from enum import Enum
+from enum import auto, Enum
 
 
 class GameState(Enum):
-    CREATED = 0
-    WAITING = 1
-    READY = 2
-    RUNNING = 3
-    CHOOSING = 4
-    TERMINATED = 5
+    CREATED = auto()
+    WAITING = auto()
+    READY = auto()
+    RUNNING = auto()
+    CHOOSING_COLOR = auto()
+    CHOOSING_EFFECT = auto()
+    CHOOSING_PLAYER = auto()
+    TERMINATED = auto()

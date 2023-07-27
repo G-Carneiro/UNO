@@ -176,7 +176,7 @@ class Table:
                 color: Color = self.current_player().main_color()
                 self._set_color(color=color)
             else:
-                self._state = GameState.CHOOSING
+                self._state = GameState.CHOOSING_COLOR
             return None
 
         self.next_player(block=block)
@@ -413,7 +413,13 @@ class Table:
         return status
 
     def choosing_color(self) -> bool:
-        return (self._state == GameState.CHOOSING)
+        return (self._state == GameState.CHOOSING_COLOR)
+
+    def choosing_effect(self) -> bool:
+        return (self._state == GameState.CHOOSING_EFFECT)
+
+    def choosing_player(self) -> bool:
+        return (self._state == GameState.CHOOSING_PLAYER)
 
     def terminated(self) -> bool:
         return (self._state == GameState.TERMINATED)
