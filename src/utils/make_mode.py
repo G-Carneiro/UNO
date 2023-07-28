@@ -3,7 +3,7 @@ with open("../utils/settings.py", "r") as sett:
         lines = sett.readlines()
         index = 0
         mode.write("""class GameMode:
-    def __init__(self, mode: int | str = "10000001110111101111011100",
+    def __init__(self, mode: int | str = "100000011101111001101011100",
                  num_cards: int = 7,
                  max_to_block: int = 10,
                  max_to_reverse: int = 20,
@@ -11,9 +11,9 @@ with open("../utils/settings.py", "r") as sett:
                  timeout: int = 60
                  ) -> None:
         if isinstance(mode, str):
-            mode = f"{mode:{0}{TOTAL_BITS}b}"
+            mode = int(mode, 2)
 
-        self.mode: str = mode
+        self.mode: str = f"{mode:{0}{TOTAL_BITS}b}"
         self.num_cards: int = num_cards
         self.max_to_block: int = max_to_block
         self.max_to_reverse: int = max_to_reverse

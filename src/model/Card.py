@@ -52,6 +52,9 @@ class Card:
     def is_black(self) -> bool:
         return (self._color == BLACK)
 
+    def is_joker(self) -> bool:
+        return (self._type == CardType.JOKER)
+
     def __repr__(self) -> str:
         out: str = ""
         if self.is_buy_card():
@@ -79,3 +82,4 @@ class Card:
 
 CALL_BLUFF: Card = Card(color=BLACK, type_=CardType.CALL_BLUFF)
 DRAW: Card = Card(color=BLACK, type_=CardType.DRAW)
+JOKER: Card = Card(color=BLACK, type_=CardType.JOKER)

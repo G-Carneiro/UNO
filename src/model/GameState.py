@@ -6,6 +6,7 @@ class GameState(Enum):
     WAITING = auto()
     READY = auto()
     RUNNING = auto()
+    CHOOSING_CARD = auto()
     CHOOSING_COLOR = auto()
     CHOOSING_EFFECT = auto()
     CHOOSING_PLAYER = auto()

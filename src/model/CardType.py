@@ -21,6 +21,7 @@ class CardType(Enum):
     DRAW_FOUR = 14
     CALL_BLUFF = 15
     DRAW = 16
+    JOKER = 17
 
     def __lt__(self, other: CardType) -> bool:
         return (self.value < other.value)

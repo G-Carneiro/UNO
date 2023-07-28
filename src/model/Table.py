@@ -178,6 +178,8 @@ class Table:
             else:
                 self._state = GameState.CHOOSING_COLOR
             return None
+        elif self._top_card.is_joker():
+            self._state = GameState.CHOOSING_EFFECT
 
         self.next_player(block=block)
         return None
@@ -268,6 +270,8 @@ class Table:
         self._deck_by_key[BLACK] += [draw_four, change_color]
         self._deck_by_key[CardType.CHANGE_COLOR] += [draw_four, change_color]
         self._deck += [draw_four, draw_four, change_color, change_color]
+        if self.mode.custom_cards:
+            self._deck += [JOKER, JOKER]
 
         return None
 
