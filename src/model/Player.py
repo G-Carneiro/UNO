@@ -7,9 +7,10 @@ from .Color import BLACK, Color
 
 
 class Player:
-    def __init__(self, name: str, id_: int) -> None:
+    def __init__(self, name: str, id_: int, tag: str = "") -> None:
         self._name: str = name
         self._id: int = id_
+        self._tag: str = tag
         self._cards: list[Card] = []
         self._num_color_cards: dict[Color, int] = {color: 0 for color in Color}
         self._bluffing: bool = False
@@ -21,6 +22,10 @@ class Player:
     @bluffing.setter
     def bluffing(self, value: bool):
         self._bluffing = value
+
+    @property
+    def tag(self) -> str:
+        return self._tag
 
     def id(self) -> int:
         return self._id

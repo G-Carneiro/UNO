@@ -1,4 +1,3 @@
-from typing import Dict
 from uuid import uuid4
 
 from telegram import (Bot, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle,
@@ -19,7 +18,9 @@ class Telegram:
     def __init__(self):
         self.updater: Updater = Updater(TELEGRAM)
         self.dispatcher = self.updater.dispatcher
-        self.table: Dict[int, Table] = {}
+        self.games: dict[int, Table] = {}
+        self.player_to_chat_id: dict[int, int] = {}
+        self.all_players: list[int] = []
         # self.chat_id: Optional[int] = None
         self.dispatcher.add_handler(InlineQueryHandler(self.show_cards))
         self.dispatcher.add_handler(ChosenInlineResultHandler(self.selected_card,
@@ -38,16 +39,15 @@ class Telegram:
     def chat_id(update: Update) -> int:
         return update.message.chat.id
 
-    def game(self, update: Update) -> Table:
-        chat_id = self.chat_id(update=update)
+    def game(self, chat_id: int) -> Table:
         try:
-            return self.table[chat_id]
+            return self.games[chat_id]
         except KeyError:
             raise GameNotCreated
 
     def create_game(self, update: Update, context: CallbackContext) -> None:
         chat_id = self.chat_id(update=update)
-        self.table[chat_id] = Table()
+        self.games[chat_id] = Table()
         message: str = f"New game created! \n" \
                        f"Type /join to play!"
         self.send_message_to_all(update=update, message=message)
@@ -56,11 +56,18 @@ class Telegram:
     def join_game(self, update: Update, context: CallbackContext) -> None:
         player_name: str = update.message.from_user.first_name
         player_id: int = update.message.from_user.id
-        new_player: Player = Player(name=player_name, id_=player_id)
+        player_tag: str = update.message.from_user.name
+        new_player: Player = Player(name=player_name, id_=player_id, tag=player_tag)
         try:
-            game = self.game(update=update)
+            # TODO: find a way to avoid this, telegram bot don't show the chat_id when make
+            #  choice button is pressed
+            if player_id in self.all_players:
+                raise AlreadyJoined("Already joined in one game!")
+            game = self.game(chat_id=self.chat_id(update=update))
             game.add_player(player=new_player)
             message: str = f"Joined the game!"
+            self.player_to_chat_id[player_id] = self.chat_id(update=update)
+            self.all_players.append(player_id)
         except (AlreadyJoined, GameNotCreated) as e:
             message = f"{e}"
 
@@ -69,11 +76,12 @@ class Telegram:
 
     def leave_game(self, update: Update, context: CallbackContext) -> None:
         player_id: int = update.message.from_user.id
-        game = self.game(update=update)
+        game = self.game(chat_id=self.chat_id(update=update))
         player: Player = game.get_player(player_id=player_id)
         try:
             game.remove_player(player=player)
             message: str = f"Left the game!"
+            self.all_players.remove(player_id)
         except NotInGame as e:
             message = f"{e}"
 
@@ -83,7 +91,7 @@ class Telegram:
     def start_game(self, update: Update, callback: CallbackContext) -> None:
         bot: Bot = callback.bot
         chat_id = self.chat_id(update=update)
-        game = self.game(update=update)
+        game = self.game(chat_id=chat_id)
 
         try:
             game.start_game()
@@ -105,9 +113,10 @@ class Telegram:
 
     def show_cards(self, update: Update, callback: CallbackContext) -> None:
         card_buttons = []
-        game = self.game(update=update)
-        current_player: Player = game.current_player()
         user_id: int = update.inline_query.from_user.id
+        chat_id = self.player_to_chat_id[user_id]
+        game = self.game(chat_id=chat_id)
+        current_player: Player = game.current_player()
         player: Player = game.get_player(user_id)
         if (player is None):
             return None
@@ -183,18 +192,19 @@ class Telegram:
         return None
 
     def selected_card(self, update: Update, context: CallbackContext) -> None:
-        game = self.game(update=update)
-        current_player: Player = game.current_player()
         inline_result = update.chosen_inline_result
         user = inline_result.from_user
         card_name: str = inline_result.result_id
+        sender_id: int = user.id
+        chat_id = self.player_to_chat_id[sender_id]
+        game = self.game(chat_id=chat_id)
+        current_player: Player = game.current_player()
         try:
             card_name: Color = Color[card_name]
         except KeyError:
             if (card_name not in STICKERS.keys()):
                 return None
 
-        sender_id: int = user.id
         if (current_player.id() == sender_id):
             if isinstance(card_name, Color):
                 selected: Color = card_name
@@ -202,7 +212,6 @@ class Telegram:
                 selected: Card = current_player.select_card(name=card_name)
             game.turn(selected=selected)
             bot = context.bot
-            chat_id = self.chat_id(update=update)
             if (game.terminated()):
                 bot.send_message(chat_id,
                                  text=f"Game ended, {game.current_player()} won!")
@@ -227,10 +236,11 @@ class Telegram:
 
     def skip(self, update: Update, context: CallbackContext) -> None:
         bot = context.bot
-        game = self.game(update=update)
+        chat_id = self.chat_id(update=update)
+        game = self.game(chat_id=chat_id)
         if (game.running()):
             game.skip()
-        bot.send_message(self.chat_id, text=game.status(),
+        bot.send_message(chat_id, text=game.status(),
                          reply_markup=InlineKeyboardMarkup(self.make_choice()))
         return None
 

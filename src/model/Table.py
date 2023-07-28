@@ -397,9 +397,14 @@ class Table:
         else:
             next_player = self._current_node().next()
 
+        if self.current_player().tag:
+            current_player = self.current_player().tag
+        else:
+            current_player = f"@{self.current_player().get_name()}"
+
         status: str = f"To draw: {self._value_to_buy} \n" \
                       f"Current card: {self._top_card}{self._top_card.color.value} \n" \
-                      f"Current player: {self.current_player()} (" \
+                      f"Current player: {current_player} (" \
                       f"{self.current_player().num_cards()}) \n" \
                       f"Next players: {next_player.data()} ({next_player.data().num_cards()})"
 
