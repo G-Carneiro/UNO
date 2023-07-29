@@ -421,6 +421,26 @@ class Table:
 
         return status
 
+    def change_mode(self, setting: str | int) -> None:
+        mode: GameMode = self.mode
+        if isinstance(setting, int):
+            mode.set_mode(mode=setting)
+        else:
+            exec(f"mode.{setting.lower()} = not mode.{setting.lower()}")
+        return None
+
+    def settings(self) -> list[tuple[str, bool]]:
+        with open("../utils/settings.py", "r") as f:
+            lines = f.readlines()
+
+        settings: list[tuple[str, bool]] = []
+        mode: GameMode = self.mode
+        for line in lines:
+            setting = line.split(":")[0]
+            if (setting[0] != "#"):
+                settings.append((setting, eval(f"mode.{setting.lower()}")))
+        return settings
+
     def choosing_color(self) -> bool:
         return (self._state == GameState.CHOOSING_COLOR)
 
@@ -430,6 +450,9 @@ class Table:
     def choosing_player(self) -> bool:
         return (self._state == GameState.CHOOSING_PLAYER)
 
+    def created(self) -> bool:
+        return (self._state == GameState.CREATED)
+
     def terminated(self) -> bool:
         return (self._state == GameState.TERMINATED)
 
@@ -438,6 +461,9 @@ class Table:
 
     def ready(self) -> bool:
         return (self._state == GameState.READY)
+
+    def waiting(self) -> bool:
+        return (self._state == GameState.WAITING)
 
     def __repr__(self) -> str:
         return f"{str(self._players)} - {str(self.current_card())}"

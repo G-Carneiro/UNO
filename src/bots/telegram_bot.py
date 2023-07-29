@@ -32,6 +32,7 @@ class Telegram:
         self.dispatcher.add_handler(
             CommandHandler("start", self.start_game, pass_args=True, pass_job_queue=True))
         self.dispatcher.add_handler(CommandHandler("create", self.create_game))
+        self.dispatcher.add_handler(CommandHandler("change_mode", self.change_mode))
         self.updater.start_polling()
         self.updater.idle()
 
@@ -107,9 +108,9 @@ class Telegram:
         return None
 
     @staticmethod
-    def make_choice() -> list[list[InlineKeyboardButton]]:
+    def make_choice(text: str = "Make your choice!") -> list[list[InlineKeyboardButton]]:
         return [
-            [InlineKeyboardButton(text="Make your choice!", switch_inline_query_current_chat='')]]
+            [InlineKeyboardButton(text=text, switch_inline_query_current_chat='')]]
 
     def show_cards(self, update: Update, callback: CallbackContext) -> None:
         card_buttons = []
@@ -120,10 +121,14 @@ class Telegram:
         player: Player = game.get_player(user_id)
         if (player is None):
             return None
-
-        status = game.status()
+        try:
+            status = game.status()
+        except AttributeError:
+            pass
         if (game.choosing_color()) and (user_id == current_player.id()):
             card_buttons = self.choose_color(player=current_player)
+        elif (game.ready() or game.waiting() or game.created()):
+            card_buttons = self.show_settings(settings=game.settings())
         elif (user_id == current_player.id()):
             playable_cards = game.playable_cards
             if (game.call_bluff):
@@ -202,7 +207,12 @@ class Telegram:
         try:
             card_name: Color = Color[card_name]
         except KeyError:
-            if (card_name not in STICKERS.keys()):
+            try:
+                game.change_mode(setting=card_name)
+            except KeyError:
+                if (card_name not in STICKERS.keys()):
+                    return None
+            else:
                 return None
 
         if (current_player.id() == sender_id):
@@ -233,6 +243,31 @@ class Telegram:
             colors.append(new_article)
 
         return colors
+
+    @staticmethod
+    def show_settings(settings: list[str]) -> list[InlineQueryResultArticle]:
+        articles: list[InlineQueryResultArticle] = []
+        for setting, value in settings:
+            message = f"Setting {setting} changed to {not value}."
+            new_article = InlineQueryResultArticle(id=setting, title=f"{setting} ({value})",
+                                                   input_message_content=InputTextMessageContent(
+                                                       message))
+            articles.append(new_article)
+        return articles
+
+    def change_mode(self, update: Update, context: CallbackContext) -> None:
+        bot = context.bot
+        chat_id = self.chat_id(update=update)
+        game = self.game(chat_id=chat_id)
+        try:
+            new_mode: int = int(context.args[0])
+            game.change_mode(new_mode)
+        except (IndexError, ValueError):
+            bot.send_message(chat_id, text="Click the button to modify a setting!",
+                             reply_markup=InlineKeyboardMarkup(self.make_choice("Choose setting!")))
+        else:
+            bot.send_message(chat_id, text=f"Game changed to mode {new_mode}.")
+        return None
 
     def skip(self, update: Update, context: CallbackContext) -> None:
         bot = context.bot

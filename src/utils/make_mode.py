@@ -13,7 +13,7 @@ with open("../utils/settings.py", "r") as sett:
         if isinstance(mode, str):
             mode = int(mode, 2)
 
-        self.mode: str = f"{mode:{0}{TOTAL_BITS}b}"
+        self._mode: str = f"{mode:{0}{TOTAL_BITS}b}"
         self.num_cards: int = num_cards
         self.max_to_block: int = max_to_block
         self.max_to_reverse: int = max_to_reverse
@@ -27,7 +27,7 @@ with open("../utils/settings.py", "r") as sett:
                            f"self._bit_to_bool(index={index})\n")
         mode.write(f"\n"
                    f"    def _bit_to_bool(self, index: int) -> bool:\n"
-                   f"        return bool(int(self.mode[index]))\n")
+                   f"        return bool(int(self._mode[index]))\n")
     with open("../model/GameMode.py", "r") as mode:
         mode_lines = mode.readlines()
     with open("../model/GameMode.py", "w") as mode:

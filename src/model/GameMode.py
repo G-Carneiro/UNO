@@ -9,15 +9,23 @@ class GameMode:
                  min_players: int = 2,
                  timeout: int = 60
                  ) -> None:
-        if isinstance(mode, str):
-            mode = int(mode, 2)
-
-        self.mode: str = f"{mode:{0}{TOTAL_BITS}b}"
         self.num_cards: int = num_cards
         self.max_to_block: int = max_to_block
         self.max_to_reverse: int = max_to_reverse
         self.min_players: int = min_players
         self.timeout: int = timeout
+        self._set_all_settings(mode=mode)
+
+    def _bit_to_bool(self, index: int) -> bool:
+        return bool(int(self._mode[index]))
+
+    def _set_all_settings(self, mode: int | str) -> None:
+        if isinstance(mode, str):
+            mode = int(mode, 2)
+
+        self._mode: str = f"{mode:{0}{TOTAL_BITS}b}"
+        if len(self._mode) > TOTAL_BITS:
+            raise ValueError
         self.auto_choose_color: bool = self._bit_to_bool(index=-1)
         self.auto_skip: bool = self._bit_to_bool(index=-2)
         self.black_over_black: bool = self._bit_to_bool(index=-3)
@@ -45,6 +53,7 @@ class GameMode:
         self.swap_hand: bool = self._bit_to_bool(index=-25)
         self.swap_hands: bool = self._bit_to_bool(index=-26)
         self.win_with_black: bool = self._bit_to_bool(index=-27)
+        return None
 
-    def _bit_to_bool(self, index: int) -> bool:
-        return bool(int(self.mode[index]))
+    def set_mode(self, mode: int | str) -> None:
+        return self._set_all_settings(mode=mode)
