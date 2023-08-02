@@ -207,12 +207,11 @@ class Telegram:
         try:
             card_name: Color = Color[card_name]
         except KeyError:
-            try:
-                game.change_mode(setting=card_name)
-            except KeyError:
-                if (card_name not in STICKERS.keys()):
-                    return None
-            else:
+            if (card_name not in STICKERS.keys()):
+                try:
+                    game.change_mode(setting=card_name)
+                except SyntaxError:
+                    pass
                 return None
 
         if (current_player.id() == sender_id):
