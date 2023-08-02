@@ -124,7 +124,7 @@ class Telegram:
         try:
             status = game.status()
         except AttributeError:
-            pass
+            return None
         if (game.choosing_color()) and (user_id == current_player.id()):
             card_buttons = self.choose_color(player=current_player)
         elif (game.ready() or game.waiting() or game.created()):
@@ -244,7 +244,7 @@ class Telegram:
         return colors
 
     @staticmethod
-    def show_settings(settings: list[str]) -> list[InlineQueryResultArticle]:
+    def show_settings(settings: list[tuple[str, bool]]) -> list[InlineQueryResultArticle]:
         articles: list[InlineQueryResultArticle] = []
         for setting, value in settings:
             message = f"Setting {setting} changed to {not value}."
