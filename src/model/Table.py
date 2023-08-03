@@ -52,8 +52,8 @@ class Table:
         return self._top_card
 
     def add_player(self, player: Player) -> None:
-        # if (player in self._players):
-        #     raise AlreadyJoined
+        if (player in self._players):
+            raise AlreadyJoined
 
         # new player can't join as current player
         index: int = randint(self.running(), self.num_players())

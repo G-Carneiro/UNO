@@ -19,12 +19,9 @@ class Telegram:
     def __init__(self):
         self.application = Application.builder().token(TELEGRAM).build()
         self.games: dict[int, Table] = {}
-        self.player_to_chat_id: dict[int, int] = {}
-        self.all_players: list[int] = []
-        # self.chat_id: Optional[int] = None
         self.application.add_handler(InlineQueryHandler(self.show_cards))
         self.application.add_handler(ChosenInlineResultHandler(self.selected_card, ))
-        # dispatcher.add_handler(CallbackQueryHandler(show_cards))
+        # self.application.add_handler(CallbackQueryHandler(self.show_cards))
         self.application.add_handler(CommandHandler("join", self.join_game))
         self.application.add_handler(CommandHandler("leave", self.leave_game))
         self.application.add_handler(CommandHandler("skip", self.skip))
@@ -57,15 +54,9 @@ class Telegram:
         player_tag: str = update.message.from_user.name
         new_player: Player = Player(name=player_name, id_=player_id, tag=player_tag)
         try:
-            # TODO: find a way to avoid this, telegram bot don't show the chat_id when make
-            #  choice button is pressed
-            # if player_id in self.all_players:
-            #     raise AlreadyJoined("Already joined in one game!")
             game = self.game(chat_id=self.chat_id(update=update))
             game.add_player(player=new_player)
             message: str = f"Joined the game!"
-            self.player_to_chat_id[player_id] = self.chat_id(update=update)
-            self.all_players.append(player_id)
         except (AlreadyJoined, GameNotCreated) as e:
             message = f"{e}"
 
@@ -78,13 +69,12 @@ class Telegram:
         try:
             game.remove_player(player=player)
             message: str = f"Left the game!"
-            self.all_players.remove(player_id)
         except NotInGame as e:
             message = f"{e}"
 
         return self.send_message_to_all(update=update, message=message)
 
-    async def start_game(self, update: Update, callback: CallbackContext) -> Coroutine:
+    async def start_game(self, update: Update, callback: CallbackContext) -> None:
         bot: Bot = callback.bot
         chat_id = self.chat_id(update=update)
         game = self.game(chat_id=chat_id)
@@ -98,19 +88,21 @@ class Telegram:
             await bot.send_message(chat_id, text="Game started!")
             await bot.send_sticker(chat_id, sticker=STICKERS[str(game.current_card()).lower()])
             await bot.send_message(chat_id, text=game.status(),
-                                   reply_markup=InlineKeyboardMarkup(self.make_choice()))
+                                   reply_markup=InlineKeyboardMarkup(self.make_choice(chat_id)))
 
         return None
 
     @staticmethod
-    def make_choice(text: str = "Make your choice!") -> list[list[InlineKeyboardButton]]:
+    def make_choice(chat_id: int, text: str = "Make your choice!"
+                    ) -> list[list[InlineKeyboardButton]]:
         return [
-            [InlineKeyboardButton(text=text, switch_inline_query_current_chat='')]]
+            [InlineKeyboardButton(text=text, switch_inline_query_current_chat=f"{chat_id}")]]
 
-    async def show_cards(self, update: Update, callback: CallbackContext) -> Coroutine:
+    async def show_cards(self, update: Update, callback: CallbackContext) -> None:
         card_buttons = []
-        user_id: int = update.inline_query.from_user.id
-        chat_id = self.player_to_chat_id[user_id]
+        inline_query = update.inline_query
+        user_id: int = inline_query.from_user.id
+        chat_id = int(inline_query.query)
         game = self.game(chat_id=chat_id)
         current_player: Player = game.current_player()
         player: Player = game.get_player(user_id)
@@ -146,7 +138,7 @@ class Telegram:
             self._disable_all_cards(card_buttons=card_buttons, player=player, status=status)
 
         bot = callback.bot
-        return await bot.answer_inline_query(update.inline_query.id, card_buttons, cache_time=0)
+        await bot.answer_inline_query(update.inline_query.id, card_buttons, cache_time=0)
 
     @staticmethod
     def _gen_sticker_cards(card_buttons: list[Sticker], player: Player,
@@ -190,12 +182,12 @@ class Telegram:
         await update.message.reply_text(message, reply_markup=reply_markup)
         return None
 
-    async def selected_card(self, update: Update, context: CallbackContext) -> Coroutine:
+    async def selected_card(self, update: Update, context: CallbackContext) -> None:
         inline_result = update.chosen_inline_result
         user = inline_result.from_user
         card_name: str = inline_result.result_id
         sender_id: int = user.id
-        chat_id = self.player_to_chat_id[sender_id]
+        chat_id: int = int(inline_result.query)
         game = self.game(chat_id=chat_id)
         current_player: Player = game.current_player()
         try:
@@ -220,7 +212,7 @@ class Telegram:
                                        text=f"Game ended, {game.current_player()} won!")
             else:
                 await bot.send_message(chat_id, text=game.status(),
-                                       reply_markup=InlineKeyboardMarkup(self.make_choice()))
+                                       reply_markup=InlineKeyboardMarkup(self.make_choice(chat_id)))
 
         return None
 
@@ -248,7 +240,7 @@ class Telegram:
             articles.append(new_article)
         return articles
 
-    async def change_mode(self, update: Update, context: CallbackContext) -> Coroutine:
+    async def change_mode(self, update: Update, context: CallbackContext) -> None:
         bot = context.bot
         chat_id = self.chat_id(update=update)
         game = self.game(chat_id=chat_id)
@@ -258,19 +250,19 @@ class Telegram:
         except (IndexError, ValueError):
             await bot.send_message(chat_id, text="Click the button to modify a setting!",
                                    reply_markup=InlineKeyboardMarkup(
-                                       self.make_choice("Choose setting!")))
+                                       self.make_choice(chat_id, "Choose setting!")))
         else:
             await bot.send_message(chat_id, text=f"Game changed to mode {new_mode}.")
         return None
 
-    async def skip(self, update: Update, context: CallbackContext) -> Coroutine:
+    async def skip(self, update: Update, context: CallbackContext) -> None:
         bot = context.bot
         chat_id = self.chat_id(update=update)
         game = self.game(chat_id=chat_id)
         if (game.running()):
             game.skip()
         await bot.send_message(chat_id, text=game.status(),
-                               reply_markup=InlineKeyboardMarkup(self.make_choice()))
+                               reply_markup=InlineKeyboardMarkup(self.make_choice(chat_id)))
         return None
 
 
