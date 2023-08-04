@@ -272,16 +272,4 @@ class Telegram:
         return None
 
 
-# TODO: mark actual player in chat
-
-# dispatcher.add_handler(InlineQueryHandler(show_cards))
-# dispatcher.add_handler(ChosenInlineResultHandler(selected_card, pass_job_queue=True))
-# # dispatcher.add_handler(CallbackQueryHandler(show_cards))
-# dispatcher.add_handler(CommandHandler("join", join_game))
-# dispatcher.add_handler(CommandHandler("leave", leave_game))
-# dispatcher.add_handler(CommandHandler("skip", skip))
-# dispatcher.add_handler(CommandHandler("start", start_game, pass_args=True, pass_job_queue=True))
-# dispatcher.add_handler(CommandHandler("create", create_game))
-# updater.start_polling()
-# updater.idle()
 Telegram()

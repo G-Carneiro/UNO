@@ -52,8 +52,8 @@ class Table:
         return self._top_card
 
     def add_player(self, player: Player) -> None:
-        if (player in self._players):
-            raise AlreadyJoined
+        # if (player in self._players):
+        #     raise AlreadyJoined
 
         # new player can't join as current player
         index: int = randint(self.running(), self.num_players())
@@ -397,10 +397,9 @@ class Table:
         else:
             next_player = self._current_node().next()
 
+        current_player = f"{self.current_player().get_name()} "
         if self.current_player().tag:
-            current_player = self.current_player().tag
-        else:
-            current_player = f"@{self.current_player().get_name()}"
+            current_player += self.current_player().tag
 
         status: str = f"To draw: {self._value_to_buy} \n" \
                       f"Current card: {self._top_card}{self._top_card.color.value} \n" \
