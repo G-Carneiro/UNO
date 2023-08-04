@@ -102,8 +102,11 @@ class Telegram:
         card_buttons = []
         inline_query = update.inline_query
         user_id: int = inline_query.from_user.id
-        chat_id = int(inline_query.query)
-        game = self.game(chat_id=chat_id)
+        try:
+            chat_id: int = int(inline_query.query)
+            game = self.game(chat_id=chat_id)
+        except (KeyError, ValueError):
+            return None
         current_player: Player = game.current_player()
         player: Player = game.get_player(user_id)
         if (player is None):
@@ -187,8 +190,11 @@ class Telegram:
         user = inline_result.from_user
         card_name: str = inline_result.result_id
         sender_id: int = user.id
-        chat_id: int = int(inline_result.query)
-        game = self.game(chat_id=chat_id)
+        try:
+            chat_id: int = int(inline_result.query)
+            game = self.game(chat_id=chat_id)
+        except (KeyError, ValueError):
+            return None
         current_player: Player = game.current_player()
         try:
             card_name: Color = Color[card_name]
