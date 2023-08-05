@@ -271,6 +271,3 @@ class Telegram:
         await bot.send_message(chat_id, text=game.status(),
                                reply_markup=InlineKeyboardMarkup(self.make_choice(chat_id)))
         return None
-
-
-Telegram()
