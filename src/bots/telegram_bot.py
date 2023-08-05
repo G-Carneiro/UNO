@@ -142,6 +142,7 @@ class Telegram:
 
         bot = callback.bot
         await bot.answer_inline_query(update.inline_query.id, card_buttons, cache_time=0)
+        return None
 
     @staticmethod
     def _gen_sticker_cards(card_buttons: list[Sticker], player: Player,
