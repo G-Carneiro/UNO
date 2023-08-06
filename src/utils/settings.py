@@ -7,6 +7,7 @@ BLOCK_DRAW_TWO: bool = True
 BLOCK_ONLY_WITH_SAME_COLOR: bool = False
 BLOCK_REVERSE_DRAW: bool = True
 CALL_BLUFF: bool = False
+CAN_PASS_AFTER_DRAW: bool = False
 # TODO: add custom cards to deck, the player will be choose its effect: any playable card,
 #  any shuffle/swap hand, or change one mode setting
 CUSTOM_CARDS: bool = False

@@ -83,3 +83,4 @@ class Card:
 CALL_BLUFF: Card = Card(color=BLACK, type_=CardType.CALL_BLUFF)
 DRAW: Card = Card(color=BLACK, type_=CardType.DRAW)
 JOKER: Card = Card(color=BLACK, type_=CardType.JOKER)
+PASS: Card = Card(color=BLACK, type_=CardType.PASS)

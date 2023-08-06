@@ -132,7 +132,11 @@ class Table:
                     if self.mode.pass_after_draw:
                         self.next_player()
             else:
-                return None
+                self._give_cards_to_player(player=current_player)
+                if self.mode.pass_after_draw:
+                    self.next_player()
+        elif (selected == PASS):
+            self.next_player()
         else:
             if (self.mode.call_bluff and selected.is_draw_four()):
                 self._call_bluff = True
