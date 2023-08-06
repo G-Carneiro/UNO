@@ -17,7 +17,6 @@ DRAW_TWO_ONLY_WITH_SAME_COLOR: bool = False
 DRAW_TWO_OVER_DRAW_FOUR: bool = True
 DRAW_TWO_OVER_DRAW_TWO: bool = True
 DRAW_WHILE_NO_CARD: bool = True
-# TODO: player is forced to play if have playable card
 FORCED_PLAY: bool = True
 PASS_AFTER_DRAW: bool = False
 PASS_AFTER_FORCED_DRAW: bool = True

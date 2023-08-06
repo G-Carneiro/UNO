@@ -23,6 +23,7 @@ class Table:
         self._playable_cards: set[Card] = set()
         self._timeout: int = 0
         self._call_bluff: bool = False
+        self._pass: bool = False
         self._set_deck()
 
     def get_players(self):
@@ -32,8 +33,11 @@ class Table:
         options: set[Option] = set()
         if self.call_bluff:
             options.add(CALL_BLUFF)
-        if self.current_player().not_have_playable_card(playable_cards=self.playable_cards):
+        if (not self.mode.forced_play and not self._pass) or \
+                self.current_player().not_have_playable_card(playable_cards=self.playable_cards):
             options.add(DRAW)
+        if self._pass:
+            options.add(PASS)
         return options
 
     @property
@@ -111,6 +115,7 @@ class Table:
         current_player: Player = self.current_player()
         playable_cards = self.playable_cards
         self._call_bluff = False
+        self._pass = False
         if (selected == CALL_BLUFF):
             previous_player = self._current_node().previous().data()
             value_to_buy = self._value_to_buy
@@ -130,6 +135,8 @@ class Table:
                     self._value_to_buy = 0
                     if self.mode.pass_after_forced_draw:
                         self.next_player()
+                    elif self.mode.can_pass_after_draw:
+                        self._pass = True
                 else:
                     card: Card = self.get_random_card()
                     current_player.draw_card(card)
@@ -140,10 +147,14 @@ class Table:
 
                     if self.mode.pass_after_draw:
                         self.next_player()
+                    elif self.mode.can_pass_after_draw:
+                        self._pass = True
             else:
                 self._give_cards_to_player(player=current_player)
                 if self.mode.pass_after_draw:
                     self.next_player()
+                elif self.mode.can_pass_after_draw:
+                    self._pass = True
         elif (selected == PASS):
             self.next_player()
         else:

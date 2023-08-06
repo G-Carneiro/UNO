@@ -2,7 +2,7 @@ TOTAL_BITS: int = 28
 
 
 class GameMode:
-    def __init__(self, mode: int | str = "1000000111011110110001011100",
+    def __init__(self, mode: int | str = "1000000111011110110101011100",
                  num_cards: int = 7,
                  max_to_block: int = 10,
                  max_to_reverse: int = 20,
