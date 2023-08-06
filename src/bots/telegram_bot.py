@@ -121,16 +121,12 @@ class Telegram:
             card_buttons = self.show_settings(settings=game.settings())
         elif (user_id == current_player.id()):
             playable_cards = game.playable_cards
-            if (game.call_bluff):
-                sticker_id = "call_bluff"
+            for option in game.current_player_options():
+                sticker_id = option.name.lower()
                 sticker = STICKERS[sticker_id]
                 new_button = Sticker(sticker_id, sticker_file_id=sticker)
                 card_buttons.append(new_button)
             if (current_player.not_have_playable_card(playable_cards=playable_cards)):
-                sticker_id = "draw"
-                sticker = STICKERS[sticker_id]
-                new_button = Sticker(sticker_id, sticker_file_id=sticker)
-                card_buttons.append(new_button)
                 if (current_player.num_cards() < 50):
                     self._disable_all_cards(card_buttons=card_buttons, player=current_player,
                                             status=status)

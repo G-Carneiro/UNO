@@ -9,6 +9,7 @@ from .exceptions import *
 from .GameMode import GameMode
 from .GameState import GameState
 from .Node import DoublyLinkedListNode as Node
+from .option import *
 from .Player import Player
 
 
@@ -26,6 +27,14 @@ class Table:
 
     def get_players(self):
         return self._players
+
+    def current_player_options(self) -> set[Option]:
+        options: set[Option] = set()
+        if self.call_bluff:
+            options.add(CALL_BLUFF)
+        if self.current_player().not_have_playable_card(playable_cards=self.playable_cards):
+            options.add(DRAW)
+        return options
 
     @property
     def call_bluff(self) -> bool:
@@ -52,8 +61,8 @@ class Table:
         return self._top_card
 
     def add_player(self, player: Player) -> None:
-        if (player in self._players):
-            raise AlreadyJoined
+        # if (player in self._players):
+        #     raise AlreadyJoined
 
         # new player can't join as current player
         index: int = randint(self.running(), self.num_players())

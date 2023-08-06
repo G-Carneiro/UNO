@@ -54,7 +54,7 @@ STICKERS = {
     '+4': 'BQADBAAD9QEAAl9XmQABVlkSNfhn76cC',
     'change_color': 'BQADBAAD8wEAAl9XmQABl9rUOPqx4E4C',
     'draw': 'BQADBAAD-AIAAl9XmQABxEjEcFM-VHIC',
-    'option_pass': 'BQADBAAD-gIAAl9XmQABcEkAAbaZ4SicAg',
+    'pass': 'BQADBAAD-gIAAl9XmQABcEkAAbaZ4SicAg',
     'call_bluff': 'BQADBAADygIAAl9XmQABJoLfB9ntI2UC',
     'option_info': 'BQADBAADxAIAAl9XmQABC5v3Z77VLfEC'
 }

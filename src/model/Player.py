@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import Optional
 
-from .Card import CALL_BLUFF, Card, DRAW
+from .Card import Card
 from .Color import BLACK, Color
+from .option import CALL_BLUFF, DRAW, Option, PASS
 
 
 class Player:
@@ -81,8 +82,10 @@ class Player:
 
         return None
 
-    def select_card(self, name: str) -> Optional[Card]:
-        for card in self._cards + [CALL_BLUFF, DRAW]:
+    def select_card(self, name: str) -> Optional[Card | Option]:
+        items: list[Card | Option] = [CALL_BLUFF, DRAW, PASS]
+        items += self._cards
+        for card in items:
             if (name.lower() == str(card).lower()):
                 return card
         return None
