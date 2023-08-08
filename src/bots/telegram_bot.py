@@ -111,15 +111,15 @@ class Telegram:
         player: Player = game.get_player(user_id)
         if (player is None):
             return None
-        try:
-            status = game.status()
-        except AttributeError:
-            return None
         if (game.choosing_color()) and (user_id == current_player.id()):
             card_buttons = self.choose_color(player=current_player)
         elif (game.ready() or game.waiting() or game.created()):
             card_buttons = self.show_settings(settings=game.settings())
         elif (user_id == current_player.id()):
+            try:
+                status = game.status()
+            except AttributeError:
+                return None
             playable_cards = game.playable_cards
             for option in game.current_player_options():
                 sticker_id = option.name.lower()
