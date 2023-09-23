@@ -134,7 +134,7 @@ class Telegram:
                 self._gen_sticker_cards(card_buttons=card_buttons, player=current_player,
                                         playable_cards=playable_cards, status=status)
         else:
-            self._disable_all_cards(card_buttons=card_buttons, player=player, status=status)
+            self._disable_all_cards(card_buttons=card_buttons, player=player, status=game.status())
 
         bot = callback.bot
         await bot.answer_inline_query(update.inline_query.id, card_buttons, cache_time=0)
